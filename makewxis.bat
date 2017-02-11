@@ -1,0 +1,2 @@
+rem \Borland\BCC55\bin\make -f wxis.mak CC="\Borland\BCC55\bin\bcc32 -Ic:\Borland\bcc55\include -Lc:\Borland\bcc55\Lib   CIFFI=0 LIND=0 LIND4=0 ISISXL=1 ISISXL512=0  SIXTY_FOUR=0 _FILE_OFFSET_BITS=00 _LARGEFILE64_SOURCE=0
+C:\Dev-Cpp\bin\gcc -f wxis.mak CC="\Dev-Cpp\bin\gcc"  CIFFI=0 LIND=0 LIND4=0 ISISXL=1 ISISXL512=0  SIXTY_FOUR=0 _FILE_OFFSET_BITS=00 _LARGEFILE64_SOURCE=0

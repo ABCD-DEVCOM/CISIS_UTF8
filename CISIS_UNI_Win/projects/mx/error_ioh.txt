@@ -1,0 +1,9 @@
+C:\Borland\BCC55\Include/io.h:42:1: warning: '__cdecl__' attribute only applies to function types [-Wattributes]
+ extern  unsigned    _RTLENTRY _EXPDATA _nfile;
+ ^
+C:\Borland\BCC55\Include/io.h:146:78: error: expected '(' before ')' token
+ int  _RTLENTRY _EXPFUNC _rtl_creat  (const char _FAR *__path, int __attribute);
+                                                                              ^
+C:\Borland\BCC55\Include/io.h:175:75: error: expected '(' before ')' token
+ int  _RTLENTRY _EXPFUNC _wrtl_creat(const wchar_t *__path, int __attribute);
+                                                                           ^
