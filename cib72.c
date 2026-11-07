@@ -678,11 +678,7 @@ char *b7_run(cib7p,irec,dbnamp,buffup,buffuplen,tell,
 #if UTF8
 				uctab_utf8,
 #else
-<<<<<<< HEAD
-                		uctab,
-=======
                 uctab,
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
 #endif /* UTF8 */      
                         btch0p,tlirec,crec,errnop)           /*
 
@@ -1001,53 +997,14 @@ B7_RUNERROR:
             b7acc = '0';
          	break;
 			case ZPFX:
-<<<<<<< HEAD
-//#if UTF8
-////	    		        for (tl_deflen=0; *b7p != OPRNULL; )
-////					tl_deflen++;
-//			for (tl_deflen=0; *b7p != OPRNULL; b7p++)
-//                       { tl_deflen++;
-//					memcpy(tl_defpfx,b7p,tl_deflen);
-//					uppercase_utf8_length(uctab_utf8,tl_defpfx,tl_deflen);
-//			}				
-
 #if UTF8
-/*
-			       for (tl_deflen=0; *b7p != OPRNULL; b7p++)
-				tl_deflen++;
-
-			       memcpy(tl_defpfx,b7p,tl_deflen - 1);
-
-				for (n=0; n < 10; n++)
-					n--;
-
-			       uppercase_utf8_length(uctab_utf8,tl_defpfx,tl_deflen);
-
-*/
-				for (tl_deflen=0; *b7p != OPRNULL; )
+	    		for (tl_deflen=0; *b7p != OPRNULL; )
 				tl_defpfx[tl_deflen++] = *b7p++;
-
-
+			uppercase_utf8_length(uctab_utf8,tl_defpfx,tl_deflen);
 #else
-				for (tl_deflen=0; *b7p != OPRNULL; )
+	    		for (tl_deflen=0; *b7p != OPRNULL; )
 				tl_defpfx[tl_deflen++] = uctab[*b7p++];
-
-				
 #endif // UTF8
-
-
-
-=======
-#if UTF8
-	    		for (tl_deflen=0; *b7p != OPRNULL; )
-					tl_deflen++;
-				memcpy(tl_defpfx,b7p,tl_deflen);
-				uppercase_utf8_length(uctab_utf8,tl_defpfx,tl_deflen);
-#else
-	    		for (tl_deflen=0; *b7p != OPRNULL; )
-					tl_defpfx[tl_deflen++] = uctab[*b7p++];
-#endif // UTF8
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
             if (tl_deflen)
 #if UTF8
             	if (alphabetic_utf8(tl_defpfx+(tl_deflen-1)))

@@ -227,17 +227,10 @@ void retrieve_two_operands ();
 #if !CICPP
 
 #define max_stack       MAXSTACK
-<<<<<<< HEAD
-#define MAX_TMP_STR     (MAXMFRL/2)
-#define MAX_SFIELD      (MAXMFRL/2)
-#define MAX_FD_VALUE    (MAXMFRL/2)
-#define MAX_FD_TMP      (MAXMFRL/2)
-=======
 #define MAX_TMP_STR     (MAXMFRL)   /* /2) */
 #define MAX_SFIELD      (MAXMFRL)   /* /2) */
 #define MAX_FD_VALUE    (MAXMFRL)   /* /2) */
 #define MAX_FD_TMP      (MAXMFRL)   /* /2) */
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
 
 LONGX erro_fatal;
 stack_node stack[max_stack];
