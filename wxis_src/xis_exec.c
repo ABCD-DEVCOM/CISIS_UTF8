@@ -962,11 +962,7 @@ EXE_ERROR exeFieldDir(EXE_VAR *exeVar,    /* execution variables */
       sprintf(p,"%05d",VDIRtag(idx,fldDir)); p += 5;
       if (attributeType->atValue != ATVALUE_LIST) {
          *p++ = ' ';
-<<<<<<< HEAD
-         memcpy(p,VFIELDP(idx,fldDir),VDIRlen(idx,fldDir)); p += VDIRlen(idx,fldDir);
-=======
          memmove(p,VFIELDP(idx,fldDir),VDIRlen(idx,fldDir)); p += VDIRlen(idx,fldDir);
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
       }
       *p++ = '\n';
    } /* for */
@@ -4226,11 +4222,7 @@ void exeLoop(EXE_VAR *exeVar,          /* execution variables */
    char *taskText;               /* task text message */
 
    /* Copy scope variables */
-<<<<<<< HEAD
-   memcpy(&localScopeVar,scopeVar,sizeof(SCOPE_VAR));
-=======
    memmove(&localScopeVar,scopeVar,sizeof(SCOPE_VAR));
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
 
    /* Set local variables */
    localScopeVar.idxPrev = scopeVar->idxCurr;
@@ -4329,11 +4321,7 @@ void exeHL(EXE_VAR *exeVar,         /* execution variables */
    SCOPE_VAR localScopeVar;      /* local variables for sub-command */
 
    /* Copy scope variables */
-<<<<<<< HEAD
-   memcpy(&localScopeVar,scopeVar,sizeof(SCOPE_VAR));
-=======
    memmove(&localScopeVar,scopeVar,sizeof(SCOPE_VAR));
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
 
    /* Set local variables */
    localScopeVar.idxPrev = scopeVar->idxCurr;
@@ -4763,19 +4751,12 @@ EXE_ERROR exeStart(EXE_VAR *exeVar,       /* execution variables */
                    CPL_STRUCT *program,   /* program structure */
                    CGI_PARAM *cgiList)    /* CGI argument list */
 {
-<<<<<<< HEAD
-=======
     LONGX irec;
     char *p;
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
 
 /* Reset all variables */
     memset(exeVar,0x00,sizeof(EXE_VAR));
 
-<<<<<<< HEAD
-   /* Set cisis global tables */
-   exeStartGlobal();
-=======
     /* Set cisis global tables */
     exeStartGlobal();
 
@@ -4804,7 +4785,6 @@ EXE_ERROR exeStart(EXE_VAR *exeVar,       /* execution variables */
             if (cipmstxl == 4) cipmstxl=3;
         }
     }
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
 
    /* Set current program variables */
    exeVar->program = program;

@@ -529,11 +529,7 @@ char *	get_line				// get next line from a string buffer
 }
 
 /* ========================================================== eci_set_uctab */
-<<<<<<< HEAD
-ECI_ERROR eci_set_uctab						// set the utt-8 upper case table
-=======
 ECI_ERROR eci_set_uctab						// set the utf-8 upper case table
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
 (
 	EFC_ERROR *		err,					// error structure
     unsigned char *	area           			// upper case string buffer pointer
@@ -640,11 +636,7 @@ ECI_ERROR eci_set_uctab						// set the utf-8 upper case table
 	return ECI_ERROR_OK;
 }
 /* ========================================================== eci_set_actab */
-<<<<<<< HEAD
-ECI_ERROR eci_set_actab					// set the utt-8 alphabetic table
-=======
 ECI_ERROR eci_set_actab					// set the utf-8 alphabetic table
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
 (
 	EFC_ERROR *	err,					// error structure
 	char *		area            		// alphabetic character string buffer pointer

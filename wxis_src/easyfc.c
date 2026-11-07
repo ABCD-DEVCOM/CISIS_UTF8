@@ -222,11 +222,7 @@ char *efc_std_filecontent(EFC_ERROR *err,    /* error structure */
 #endif
 
    /* 2 */
-<<<<<<< HEAD
-   if (!buff) 
-=======
     if (!buff) 
->>>>>>> e661efdc39fdc305c9886453dd9952b3b4c2e48d
     {
         efc_error(err,qttbytes,file_name);
     }
