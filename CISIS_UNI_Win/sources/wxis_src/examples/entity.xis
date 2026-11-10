@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<!DOCTYPE IsisScript SYSTEM "wxis.dtd">
-
-<IsisScript>
-<section>
-	<display>Texto &lt;section></display>
-</section>
-</IsisScript>
