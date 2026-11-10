@@ -53,8 +53,8 @@ int lrlrsize=0;
 
 char lasttrmread[CIMPL+1] = "";             /* 950724 */
 
-#if PC
-UCHR highv[LE2+1] = { 0xFF, '\0' };     /* manca controllo.. if signed */
+#if PC || UTF8
+UCHR highv[LE2+1] = { 0xFF, '\0' };     /* manca controllo.. if signed; UTF-8: bytes >0x7F sao validos nas chaves, 0xFF nunca ocorre em UTF-8 */
 #else
 UCHR highv[LE2+1] = { 0x7F, '\0' };     /* manca controllo.. if signed */
 #endif

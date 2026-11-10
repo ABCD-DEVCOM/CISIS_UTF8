@@ -63,7 +63,8 @@ for (up=vsrchdictk1p[srchi]; *up; up++) *up = isisuctab[*up];
 */
 	    if (strncmp(p,"key1=",5) == 0 || strncmp(p,"from=",5) == 0) {
 #if UTF8
-               *k1p = uppercase_utf8(p);
+		for (p+=5,k1p=k1; *p && k1p < k1+LE2; ) *k1p++ = *p++;
+		*k1p='\0'; uppercase_utf8(k1);
 #else
 		for (p+=5,k1p=k1; *p; ) *k1p++ = isisuctab[*p++];
 #endif //UTF8
@@ -72,10 +73,11 @@ for (up=vsrchdictk1p[srchi]; *up; up++) *up = isisuctab[*up];
 
 	    }
 	    if (strncmp(p,"key2=",5) == 0 || strncmp(p,"to=",3) == 0) {
-#if UTF8
-               *k2p = uppercase_utf8(p);
-#else
 	        if (strncmp(p,"key2=",5) == 0) p+=5; else p+=3;
+#if UTF8
+		for (k2p=k2; *p && k2p < k2+LE2; ) *k2p++ = *p++;
+		*k2p='\0'; uppercase_utf8(k2);
+#else
 		for (k2p=k2; *p; ) *k2p++ = isisuctab[*p++];
 #endif //UTF8
 		*k2p='\0'; k2p=k2;
