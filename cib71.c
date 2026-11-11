@@ -27,6 +27,10 @@ DWORD extern ciapiTlsIndex;
 
 #if !CICPP
 #include "cib70.h"
+/* o operador (AND/OR/NOT) precisa de branco antes; no inicio da expressao nao ha caractere anterior (antes: lia 1 byte antes do buffer) */
+static char *tokqrystart = NULL;   /* inicio da expressao em analise (preenchido em b7_exp) */
+#define PREVWHITE(p) ((p) > tokqrystart && iswhite(*((p)-1)))
+
 #endif /* CICPP */
 
 #if CICPP
@@ -194,7 +198,7 @@ B7_EXPERROR:
 
 
     /* aponta expressao para gettoken */
-    toknextp=qryp;
+    toknextp=qryp; tokqrystart=qryp;
 
     /* analisa primeiro comando */
     nb7oprs=0;
@@ -1065,7 +1069,7 @@ b7_CIB7 *cib7p;
 
         case 'a':
         case 'A':
-            if (iswhite(*(p-1)))
+            if (PREVWHITE(p))
                 if (toupper(*(p+1)) == 'N')
                     if (toupper(*(p+2)) == 'D')
                         if (iswhite(*(p+3)))
@@ -1077,7 +1081,7 @@ b7_CIB7 *cib7p;
                                             c = '^';
                                             tokopr=c; return;
                                         }
-            if (iswhite(*(p-1)))
+            if (PREVWHITE(p))
                 if (toupper(*(p+1)) == 'N')
                     if (toupper(*(p+2)) == 'D')
                         if (iswhite(*(p+3))) {
@@ -1093,7 +1097,7 @@ b7_CIB7 *cib7p;
             break;
         case 'o':
         case 'O':
-            if (iswhite(*(p-1)))
+            if (PREVWHITE(p))
                 if (toupper(*(p+1)) == 'R')
                     if (iswhite(*(p+2))) {
                         toknextp+=2; toklen=2;
@@ -1104,7 +1108,7 @@ b7_CIB7 *cib7p;
 #if !LIND
         case 'w':
         case 'W':
-            if (iswhite(*(p-1)))
+            if (PREVWHITE(p))
                 if (toupper(*(p+1)) == 'I')
                     if (toupper(*(p+2)) == 'T')
                         if (toupper(*(p+3)) == 'H')
@@ -1173,7 +1177,7 @@ ASPAS
             break;
         default :                          /* RP 29/05/98 begin */
             if (!subst_and) break;
-            if (!iswhite(*(p-1))) break;
+            if (!PREVWHITE(p)) break;
             for (checkpos = 0; *(subst_and+checkpos); checkpos++)
                 if (toupper(*(p+checkpos)) != toupper(*(subst_and+checkpos))) {
                    checkpos = 0;

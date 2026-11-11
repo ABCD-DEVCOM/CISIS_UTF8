@@ -3248,10 +3248,18 @@ typedef enum ins {
 
 typedef int label;
 
+/* Inteiro com o tamanho de um ponteiro: os nos do compilador de formatos (PFT) guardam enderecos
+   nos campos add/m_add/next. No modo SIXTY_FOUR, LONGX e int (32 bits) e truncaria enderecos de 64 bits. */
+#if defined(_WIN64)
+typedef long long CIPTR;
+#else
+typedef long CIPTR;     /* LP64 (Linux 64): 64 bits; ILP32 e Windows 32: 32 bits */
+#endif
+
 typedef struct intermediate_code {
    label  lab;
    instruction_code  instr;
-   LONGX  add;
+   CIPTR  add;
 } pgm_node;
 
 #if CICPP
@@ -3263,8 +3271,8 @@ typedef void FMT_CODE;
 #else /* CIAPI */
 typedef struct lista {
     pgm_node info;
-    LONGX  m_add;
-    LONGX  next;
+    CIPTR  m_add;
+    CIPTR  next;
 } FMT_CODE;
 #endif /* CIAPI */
 

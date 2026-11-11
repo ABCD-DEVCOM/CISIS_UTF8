@@ -139,8 +139,8 @@ while (fim>=inicio)
     t=(int) (lw-nextcc);
     /* Se o atual e o proximo Sao brancos precisa achar outra posicao
        diferente de branco */
-     if (s[inicio+t]==' ' && s[inicio+t+1]==' ')
-       { while (s[inicio+t]== ' '&& t>=0 ) t--; }
+     if (t>=0 && s[inicio+t]==' ' && s[inicio+t+1]==' ')
+       { while (t>=0 && s[inicio+t]== ' ' ) t--; }   /* testa t antes de ler s[]: evita leitura antes do inicio do buffer */
      if (t < 0) i=inicio+(int)(lw-nextcc);                      /* 01/06/93 */
      else for (i=t+inicio; i > inicio && s[i] != ' '; i--) ;    /* 01/06/93 */
      copia=true;
@@ -244,7 +244,7 @@ end=false;
 if (ps == p) {                                  /* AOT 28/04/92 */
 *ps++=null_char;
 *ps++=' ';
-strcat(q,ps);
+memmove(q,ps,strlen(ps)+1);   /* origem e destino se sobrepoem: strcat(q,ps) era comportamento indefinido (corrompia o texto na glibc de 64 bits) */
 }
 /* other occurrences of subfields area changed according to the following
    rules:
@@ -532,7 +532,7 @@ l_code *pgm;
  l_code *t;
  LONGX aux_add;
  instruction_code  aux_instr;
- LONGX *rotulos;
+ CIPTR *rotulos;
  /* A cabeca de lista do programa gerado contem a quantidade de instrucoes
     geradas.
  */
@@ -541,15 +541,15 @@ l_code *pgm;
  /* numero de instrucoes geradas */
 #if CICPP
  try
- { rotulos=(LONGX *) new char [j*sizeof(LONGX)]; }
+ { rotulos=(CIPTR *) new char [j*sizeof(CIPTR)]; }
  catch (BAD_ALLOC)
- { rotulos=(LONGX *)NULL; }
+ { rotulos=(CIPTR *)NULL; }
 #else /* CICPP */
- rotulos=(LONGX *)ALLOC((ALLOPARM)j*sizeof(LONGX));            /* AOT 30/03/92 */
+ rotulos=(CIPTR *)ALLOC((ALLOPARM)j*sizeof(CIPTR));            /* AOT 30/03/92 */
 #endif /* CICPP */
 
  if(!rotulos) fatal("fmt_chadd/ALLOC");
- memset(rotulos,0x00,j*sizeof(LONGX));                        /* AOT 27/12/91 */
+ memset(rotulos,0x00,j*sizeof(CIPTR));                        /* AOT 27/12/91 */
 
  /* constroi enderecos direto */
  t=(l_code *)pgm->next;
@@ -559,7 +559,7 @@ l_code *pgm;
    j= (label ) t->info.lab;
    if (j>0)              /* se for label valido guarda o endereco */
       {
-       rotulos[j]=(LONGX )t;
+       rotulos[j]=(CIPTR )t;
       }
    t=(l_code *)t->next;
   }

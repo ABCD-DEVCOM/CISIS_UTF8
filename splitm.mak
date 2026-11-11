@@ -21,15 +21,10 @@ CCFLAGS = -funsigned-char -Wall
 CCLIBS =
 CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
 
-splitm: splitm.o ciutf8.o
+splitm: splitm.o
 	echo ld splitm..
-	$(CC) $(CCLIBS) -o splitm splitm.o ciutf8.o
+	$(CC) $(CCLIBS) -o splitm splitm.o
 
 splitm.o: splitm.c 
 	echo splitm..
 	$(CC) $(CCOPTS) splitm.c
-
-
-ciutf8.o: ciutf8.c cisis.h
-	 echo ciutf8..
-	$(CC) $(CCOPTS) ciutf8.c 

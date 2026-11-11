@@ -362,12 +362,18 @@ char *argv[];
             continue;
         }
         if (strncmp(p,"uctab?",6) == 0 || strncmp(p,"uctab=",6) == 0) {
+#if UTF8
+            isisuctab_utf8 = loaductb_utf8(gidbnp,p+6);
+            if (!isisuctab_utf8) fatal(p);
+            continue;
+#else
 		            if (strcmp(p+6,"ansi") == 0) {
 				                    memmove(isisuctab,ansiuctab,256/*sizeof(ansiuctab)*/);
 						                } else {
 									                /* loaductb(mi_gidbnp,isisuctab,p+6); */
 									                if (!loaductb(gidbnp,isisuctab,p+6)) fatal(p); /* AOT, 02/04/2001 */
 											            }
+#endif // UTF8
 			                continue;
 					        }
 
@@ -544,7 +550,11 @@ for (memoidx=0; memoidx < parmmemos; vntabs[memoidx]=0, memoidx++) {
         /* b7_run faz "trirecp=vrep[tlirec]" */
         if (!booltlir) record(booltlir=nrecs,"null",1L);
 
+#if UTF8
+    	p=b7_run(cib7p,boolridx,dbnp,buffup,buffuplen,booltell,isisuctab_utf8,"",booltlir,crec,&errno);
+#else
     	p=b7_run(cib7p,boolridx,dbnp,buffup,buffuplen,booltell,isisuctab,"",booltlir,crec,&errno);
+#endif // UTF8
     	if (p || errno) printf("Execution error %d: '%s'\n",errno,p);
     	else {
     	    boolhits=b7_hit(cib7p,boolridx,0L,b7setno);

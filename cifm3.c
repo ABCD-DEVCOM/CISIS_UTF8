@@ -2341,7 +2341,7 @@ if (pgm)
 if (pgm->next) {
    /* inicializa A tabela de definicao de fields */
    ni=(l_code *)pgm->next; /* next instruction */
-   for (;next_infoi(ni)!=(int)nulo;){
+   for (;next_infoi(ni)!=(CIPTR)nulo;){
       fmt_init_vinstr(ni,0);
       ni=(l_code *)ni->next;
    }
@@ -4034,7 +4034,8 @@ into a calendar time with the same format used by the time function.
       /* substring em S */
       itf=(field_definition_node *) iadd(ni);
       if(itf->offset!= -1 && itf->length!= -1)
-          strcpy(tmp_ptr,sub_string(tmp_ptr,itf->offset,itf->length));
+          { char *sub_s=sub_string(tmp_ptr,itf->offset,itf->length);
+            memmove(tmp_ptr,sub_s,strlen(sub_s)+1); }   /* sub_string devolve ponteiro dentro de tmp_ptr: strcpy com sobreposicao era comportamento indefinido */
       tmp_ptr=store_tmp_string(tmp_ptr);
       IFERR_GOTO;
       out[pout]=null_char;

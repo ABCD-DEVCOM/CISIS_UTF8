@@ -72,7 +72,7 @@ extern char *inst_cnv[];/* gener'ated */                /* AOT 26/12/91 */
 /* Prototypes */
 #if ANSI
 char *fmt_float_numb (float_x valor,int min,int dec,char fill);
-LONGX store_float_const(char *s);
+CIPTR store_float_const(char *s);
 void fmt_chadd(l_code  *pgmp);
 int num_expr(void);
 #if CICPP
@@ -113,13 +113,13 @@ void isis_fmt ( void );
 void change_pre_cond_by_u_cond(l_code *first, l_code *last);
 int dummy_id (l_code  *idx,label lab1);
 int  gen(label     lab,
-         instruction_code instr,LONGX  add,l_code *index);
+         instruction_code instr,CIPTR  add,l_code *index);
 void print_code(l_code *lista);
 field_definition_node *alloc_field_definition_node (void);
-LONGX store_field_def(int tag,char subfield,
+CIPTR store_field_def(int tag,char subfield,
                      int ind1,int ind2,int off,int len,int low,int upp);
 l_code *alloc_pgm_node (void);
-LONGX store_str_const(char *s);
+CIPTR store_str_const(char *s);
 
 /*versao6 fim ----------------------------------------------------------*/
 char *sub_field_change(char *q);
@@ -139,7 +139,7 @@ void fmt_fim_grupos_vfields(void);
 
 #else
 char *fmt_float_numb ();
-LONGX store_float_const();
+CIPTR store_float_const();
 void fmt_chadd();
 int num_expr();
 LONGX lookup();
@@ -165,9 +165,9 @@ int dummy_id ();
 int gen();
 void print_code();
 field_definition_node *alloc_field_definition_node ();
-LONGX store_field_def();
+CIPTR store_field_def();
 l_code *alloc_pgm_node ();
-LONGX store_str_const();
+CIPTR store_str_const();
 
 /*versao6 fim ----------------------------------------------------------*/
 char *sub_field_change();

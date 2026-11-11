@@ -325,6 +325,8 @@ static int indvar;  /* Indice de variaveis numericas  vvv */
 
 /* static char str[string_length];*/  /*mudado para dinamico */
 static char sub_field_value = 0; /* value of last sub_field_read */
+/* ssym so tem 128 posicoes: indexar com bytes >127 (UTF-8, comentarios com acentos) le fora do vetor */
+#define SSYM(c) ( ((unsigned int)(unsigned char)(c) < 128) ? ssym[(unsigned char)(c)] : zzzsym )
 static symbol ssym[128] /* AOT/HB 24/05/2000 - CodeGuard */
 = {
 zzzsym, zzzsym, zzzsym, zzzsym, zzzsym, zzzsym, zzzsym, zzzsym,
@@ -361,8 +363,8 @@ static l_code   *head_code ;    /* points to the beginning of the intermediate
                          */
 static l_code   *last_instr;   /* points to the last instruction generate */
 static l_code   *p_nulo=nulo;                                   /* AOT 06/04/92 */
-static LONGX field_address;
-static LONGX address;
+static CIPTR field_address;
+static CIPTR address;
 static label next_label;    /* stores the last generated label */
 static int formatting;       /* if true , the heading commands for formatting
                          a field have already been generated */
@@ -949,18 +951,18 @@ void getsymbol ()
 #endif
 
  /*A05*/
- while (ssym[ch] == slash) {
+ while (SSYM(ch) == slash) {
     int achou;
-    sym=ssym[ch];
+    sym=SSYM(ch);
     get_ch();
-    if (ssym[ch] != times)  return;
+    if (SSYM(ch) != times)  return;
     achou=false;
     /* ignora comentario */
     for (;!achou && ch != null_char ;){
            get_ch();
-           if (ssym[ch] == times){
+           if (SSYM(ch) == times){
               get_ch();
-              if (ssym[ch]==slash){
+              if (SSYM(ch)==slash){
                 achou=true;
                 get_ch();
                 ignora_espacejamento();
@@ -970,10 +972,10 @@ void getsymbol ()
     if (!achou) fatal("cifm1/end_comment");
  }
 
- if (ssym[ch] == doispontos) {
+ if (SSYM(ch) == doispontos) {
   sym=doispontos;
   get_ch(); /* Verifica o proximo char par a verif atribuicao */
-  if (ssym[ch] == eql){
+  if (SSYM(ch) == eql){
             get_ch(); /*  elimina proximo char */
             sym = attribsym ;
   }
@@ -1105,7 +1107,7 @@ void getsymbol ()
                         sub_field_value = ch;
                         get_ch ();
                      }else {
-                       sym = ssym[ch];
+                       sym = SSYM(ch);
 #if RPIVA
                        if (sym==zzzsym) erro (3);
 #else
@@ -1264,7 +1266,7 @@ ssym['['] = abrcolch;                  ssym[']'] = fchcolch;
 ssym['@'] = (enum symbol_names)atsign;
 /* aloca cabeca de lista e inicializa pointer para ultima instrucao */
 head_code=alloc_pgm_node ();
-head_code->next=(LONGX )p_nulo;
+head_code->next=(CIPTR )p_nulo;
 head_code->info.lab=0;
 head_code->info.instr=dummy;
 head_code->info.add=0;
@@ -1642,9 +1644,9 @@ label *lb1;
    gen(l0,begin,-1,p_nulo);
    if(repeatable==false) gen(-1,set_false_rep,-1,p_nulo);
    idx=alloc_pgm_node();
-   last_instr->next =(LONGX )idx;
+   last_instr->next =(CIPTR )idx;
    last_instr = alloc_pgm_node( );
-   idx->next = (LONGX )last_instr;
+   idx->next = (CIPTR )last_instr;
    last_instr->next=0L;
    /* 12-03-99 Completa instrucao assumindo que nao aparecera field
                selector e sera ignorada. Caso aparece field selector
@@ -2190,7 +2192,7 @@ char *msg;
 /*                   store_field_def                                        */
 /*--------------------------------------------------------------------------*/
 #if CICPP
-LONGX FMTSTRU :: store_field_def(int tag,
+CIPTR FMTSTRU :: store_field_def(int tag,
                                 char subfield,
                                 int ind1,
                                 int ind2,
@@ -2200,7 +2202,7 @@ LONGX FMTSTRU :: store_field_def(int tag,
                                 int upp)
 #else /* CICPP */
 #if ANSI
-LONGX store_field_def(int tag,
+CIPTR store_field_def(int tag,
                      char subfield,
                      int ind1,
                      int ind2,
@@ -2209,7 +2211,7 @@ LONGX store_field_def(int tag,
                      int low,
                      int upp)
 #else /*ANSI*/
-LONGX store_field_def(tag,subfield,ind1,ind2,off,len,low,upp)
+CIPTR store_field_def(tag,subfield,ind1,ind2,off,len,low,upp)
 int tag;
 char subfield;
 int ind1;
@@ -2221,7 +2223,7 @@ int upp;
 #endif /*ANSI*/
 #endif /* CICPP */
    {
-     LONGX ret;
+     CIPTR ret;
      field_definition_node *tmp;
      tmp = alloc_field_definition_node ();
      tmp->tag=tag;
@@ -2250,7 +2252,7 @@ printf(
              tmp->max_occ,
              tmp->last_occ);
 #endif /* TRACE_COMP_F */
-     ret = (LONGX) tmp;
+     ret = (CIPTR) tmp;
      return ret;
     }
 /*-------------------------------------------------------------------------*/
@@ -2276,19 +2278,19 @@ printf(
 #if CICPP
 int FMTSTRU :: gen(label   lab,
                    instruction_code instr,
-                   LONGX    add,
+                   CIPTR    add,
                    l_code *index)
 #else /* CICPP */
 #if ANSI
 int gen(label   lab,
         instruction_code instr,
-        LONGX    add,
+        CIPTR    add,
         l_code *index)
 #else /*ANSI*/
 int gen(lab,instr,add,index)
 label lab;
 instruction_code instr;
-LONGX add;
+CIPTR add;
 l_code *index;
 #endif /*ANSI*/
 #endif /* CICPP */
@@ -2326,7 +2328,7 @@ l_code *index;
  */
  if(index == nulo)
   { i->next = 0L; /*nulo;*/            /* AOT, 22/01/2006 */
-    last_instr->next = (LONGX) i;
+    last_instr->next = (CIPTR) i;
     last_instr=i;
   }
  n_instructions++;
@@ -2586,7 +2588,7 @@ instruction_code end;
 int  find=0;
 /*substr em S */
  int off,len;
- static LONGX field_address;
+ static CIPTR field_address;
  /* So precisa para S  */
 /*substr em S */
  /* substring na funcao S - daria para colocar em outras desta classe */
@@ -3096,7 +3098,7 @@ instruction_code last_instr;
 {
 /*substr em S */
  int off,len;
- static LONGX field_address;
+ static CIPTR field_address;
  /* So precisa para S  */
 /*  first_function_in_expression++; */
  gen(-1,first_instr,-1,p_nulo);
@@ -4426,7 +4428,7 @@ static  char *tmp_str_aloc;
  /*f01*/
 static  float_x *tmp_float_aloc;
  /*f01*/
-static  LONGX ret_str;
+static  CIPTR ret_str;
 #endif /* !CICPP */
 /*------------------------------------------------------------------------*/
 /*       alloc_field_definition_node                                      */
@@ -4485,12 +4487,12 @@ l_code *alloc_pgm_node ()
 /*                   store_str_const                                        */
 /*--------------------------------------------------------------------------*/
 #if CICPP
-LONGX FMTSTRU :: store_str_const(char *s)
+CIPTR FMTSTRU :: store_str_const(char *s)
 #else /* CICPP */
 #if ANSI
-LONGX store_str_const(char *s)
+CIPTR store_str_const(char *s)
 #else /*ANSI*/
-LONGX store_str_const(s)
+CIPTR store_str_const(s)
 char *s;
 #endif /*ANSI*/
 #endif /* CICPP */
@@ -4515,7 +4517,7 @@ char *s;
       exit(1);
     }
   strcpy(tmp_str_aloc,s);
-  ret_str =(LONGX) tmp_str_aloc;
+  ret_str =(CIPTR) tmp_str_aloc;
   return  ret_str   ;
  }
 /*f01*/
@@ -4523,12 +4525,12 @@ char *s;
 /*                   store_float_const                                      */
 /*--------------------------------------------------------------------------*/
 #if CICPP
-LONGX FMTSTRU :: store_float_const(char *s)
+CIPTR FMTSTRU :: store_float_const(char *s)
 #else /* CICPP */
 #if ANSI
-LONGX store_float_const(char *s)
+CIPTR store_float_const(char *s)
 #else /*ANSI*/
-LONGX store_float_const(s)
+CIPTR store_float_const(s)
 char *s;
 #endif /*ANSI*/
 #endif /* CICPP */
@@ -4560,7 +4562,7 @@ char *s;
 #else
   sscanf(s,float_x_fmt,tmp_float_aloc);
 #endif
-  ret_str =(LONGX) tmp_float_aloc;
+  ret_str =(CIPTR) tmp_float_aloc;
   return  ret_str;
  }
 /*f01*/

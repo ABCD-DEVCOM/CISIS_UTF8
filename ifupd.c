@@ -203,15 +203,25 @@ char *argv[];
         }
 
         if (strncmp(p,"uctab?",6) == 0 || strncmp(p,"uctab=",6) == 0) {
+#if UTF8
+            isisuctab_utf8 = loaductb_utf8(ifnp,p+6);
+            if (!isisuctab_utf8) fatal(p);
+#else
             if (!loaductb(ifnp,isisuctab,p+6)) fatal(p); /* AOT, 02/04/2001 */
+#endif // UTF8
             continue;
         }
         if (strncmp(p,"actab?",6) == 0 || strncmp(p,"actab=",6) == 0) {
+#if UTF8
+            isisactab_utf8 = loadactb_utf8(ifnp,p+6);
+            if (!isisactab_utf8) fatal(p);
+#else
             unsigned char ubuffup[256];
             memset(isiswctab,0x00,256);
             if (!loadactb(ifnp,ubuffup,p+6)) fatal(p); /* AOT, 02/04/2001 */
             for (isiswctot=0; ubuffup[isiswctot]; isiswctot=isiswctot+1)
                 isiswctab[ubuffup[isiswctot]]=1;
+#endif // UTF8
             continue;
         }
 

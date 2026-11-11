@@ -29,7 +29,7 @@ int cmd;
     awtfp->nwtfs=1;                                             // coll#0
 
     /* done */
-    if (cmd) fprintf(stderr,"*** wtf: new [%"_LD_":%d]\n",(LONGX)awtfp,sizeof(WTFUN_ARRAY));
+    if (cmd) fprintf(stderr,"*** wtf: new [%"_LD_":%d]\n",(LONGX)(CIPTR)awtfp,sizeof(WTFUN_ARRAY));
     return awtfp;
 }
 
@@ -189,7 +189,7 @@ char *envp;
     convent['"']="&quot;";
 
     /* done */
-    if (cmd) fprintf(stderr,"*** wtf: new [%"_LD_":%d]\n",(LONGX)awtfp,sizeof(WTFUN_ARRAY));
+    if (cmd) fprintf(stderr,"*** wtf: new [%"_LD_":%d]\n",(LONGX)(CIPTR)awtfp,sizeof(WTFUN_ARRAY));
     return awtfp;
 }
 
@@ -200,7 +200,7 @@ int wtfdel(cmd, awtfp)
 int cmd;
 WTFUN_ARRAY *awtfp;
 {
-    if (cmd) fprintf(stderr,"*** wtf: del [%"_LD_"]\n",(LONGX)awtfp);
+    if (cmd) fprintf(stderr,"*** wtf: del [%"_LD_"]\n",(LONGX)(CIPTR)awtfp);
     //...
     //...    while (jd_n--) {
     //...        if (jd_pgmp[jd_n]) 
@@ -222,7 +222,7 @@ int cmd;
     xwtp=(WTFUN_XWT *)ALLOC((ALLOPARM)sizeof(WTFUN_XWT));
     if (xwtp == (WTFUN_XWT *)ALLONULL) return NULL;
     memset(xwtp,0x00,sizeof(WTFUN_XWT));
-    if (cmd) fprintf(stderr,"*** wt: new [%"_LD_":%d]\n",(LONGX)xwtp,sizeof(WTFUN_XWT));
+    if (cmd) fprintf(stderr,"*** wt: new [%"_LD_":%d]\n",(LONGX)(CIPTR)xwtp,sizeof(WTFUN_XWT));
     return xwtp;
 }
 
@@ -234,7 +234,7 @@ int wtdel(cmd, xwtp)
 int cmd;
 WTFUN_XWT *xwtp;
 {
-    if (cmd) fprintf(stderr,"*** wt: del [%"_LD_"]\n",(LONGX)xwtp);
+    if (cmd) fprintf(stderr,"*** wt: del [%"_LD_"]\n",(LONGX)(CIPTR)xwtp);
     //...
     FREE(xwtp);
     return 0;

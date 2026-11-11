@@ -966,8 +966,14 @@ printf("'\n");
 	    if (parmzdecs) {
 		*batchp='\0'; zdlookup++;
 		if (parmtrace) printf("+++ %d: %s\n",DIRtag(xdir),zdp);
+#if UTF8
+		for (z1p=zdp, z2p=zkey; *z1p; ) *z2p++ = *z1p++;
+		*z2p='\0';
+		uppercase_utf8((unsigned char *)zkey);
+#else
 		for (z1p=zdp, z2p=zkey; *z1p; ) *z2p++ = isisuctab[*z1p++];
 		*z2p='\0';
+#endif // UTF8
 		TERM(itrm,zdbnp,zkey);
 		if (TRMrc == RCNORMAL) {
 		    if (posting(itrm,0L) > 1) {

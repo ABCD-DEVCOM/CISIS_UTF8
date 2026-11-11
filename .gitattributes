@@ -1,0 +1,4 @@
+# makefiles e scripts de shell precisam de fim de linha LF (CRLF quebra make e sh no Linux)
+*.mak text eol=lf
+*.xsh text eol=lf
+*.sh  text eol=lf

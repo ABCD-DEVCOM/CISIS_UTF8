@@ -1,0 +1,724 @@
+diff --git a/citrm.c b/citrm.c
+index accd4a8..a93e647 100644
+--- a/citrm.c
++++ b/citrm.c
+@@ -53,8 +53,8 @@ int lrlrsize=0;
+ 
+ char lasttrmread[CIMPL+1] = "";             /* 950724 */
+ 
+-#if PC
+-UCHR highv[LE2+1] = { 0xFF, '\0' };     /* manca controllo.. if signed */
++#if PC || UTF8
++UCHR highv[LE2+1] = { 0xFF, '\0' };     /* manca controllo.. if signed; UTF-8: bytes >0x7F sao validos nas chaves, 0xFF nunca ocorre em UTF-8 */
+ #else
+ UCHR highv[LE2+1] = { 0x7F, '\0' };     /* manca controllo.. if signed */
+ #endif
+diff --git a/crunchif.mak b/crunchif.mak
+new file mode 100644
+index 0000000..85c0034
+--- /dev/null
++++ b/crunchif.mak
+@@ -0,0 +1,59 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++crunchif: crunchif.o cidbx.o cigiz.o cirec.o ciupd.o ciutl.o citrm.o ciutf8.o
++	echo ld crunchif..
++	$(CC) -o crunchif crunchif.o cidbx.o cigiz.o cirec.o ciupd.o ciutl.o citrm.o ciutf8.o $(CCLIBS)
++
++crunchif.o: crunchif.c cisis.h
++	echo crunchif..
++	$(CC) $(CCOPTS) crunchif.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/crunchmf.mak b/crunchmf.mak
+new file mode 100644
+index 0000000..eca78be
+--- /dev/null
++++ b/crunchmf.mak
+@@ -0,0 +1,59 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++crunchmf: crunchmf.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o
++	echo ld crunchmf..
++	$(CC) -o crunchmf crunchmf.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o $(CCLIBS)
++
++crunchmf.o: crunchmf.c cisis.h
++	echo crunchmf..
++	$(CC) $(CCOPTS) crunchmf.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/i2id.mak b/i2id.mak
+new file mode 100644
+index 0000000..af77653
+--- /dev/null
++++ b/i2id.mak
+@@ -0,0 +1,59 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++i2id: i2id.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o
++	echo ld i2id..
++	$(CC) -o i2id i2id.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o $(CCLIBS)
++
++i2id.o: i2id.c cisis.h
++	echo i2id..
++	$(CC) $(CCOPTS) i2id.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/id2i.mak b/id2i.mak
+new file mode 100644
+index 0000000..9f729b1
+--- /dev/null
++++ b/id2i.mak
+@@ -0,0 +1,59 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++id2i: id2i.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o
++	echo ld id2i..
++	$(CC) -o id2i id2i.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o $(CCLIBS)
++
++id2i.o: id2i.c cisis.h
++	echo id2i..
++	$(CC) $(CCOPTS) id2i.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/ifkeys.c b/ifkeys.c
+index 1bf1f25..99c6ff5 100644
+--- a/ifkeys.c
++++ b/ifkeys.c
+@@ -63,7 +63,8 @@ for (up=vsrchdictk1p[srchi]; *up; up++) *up = isisuctab[*up];
+ */
+ 	    if (strncmp(p,"key1=",5) == 0 || strncmp(p,"from=",5) == 0) {
+ #if UTF8
+-               *k1p = uppercase_utf8(p);
++		for (p+=5,k1p=k1; *p && k1p < k1+LE2; ) *k1p++ = *p++;
++		*k1p='\0'; uppercase_utf8(k1);
+ #else
+ 		for (p+=5,k1p=k1; *p; ) *k1p++ = isisuctab[*p++];
+ #endif //UTF8
+@@ -72,10 +73,11 @@ for (up=vsrchdictk1p[srchi]; *up; up++) *up = isisuctab[*up];
+ 
+ 	    }
+ 	    if (strncmp(p,"key2=",5) == 0 || strncmp(p,"to=",3) == 0) {
++	        if (strncmp(p,"key2=",5) == 0) p+=5; else p+=3;
+ #if UTF8
+-               *k2p = uppercase_utf8(p);
++		for (k2p=k2; *p && k2p < k2+LE2; ) *k2p++ = *p++;
++		*k2p='\0'; uppercase_utf8(k2);
+ #else
+-	        if (strncmp(p,"key2=",5) == 0) p+=5; else p+=3;
+ 		for (k2p=k2; *p; ) *k2p++ = isisuctab[*p++];
+ #endif //UTF8
+ 		*k2p='\0'; k2p=k2;
+diff --git a/ifload.mak b/ifload.mak
+new file mode 100644
+index 0000000..0c561d4
+--- /dev/null
++++ b/ifload.mak
+@@ -0,0 +1,71 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++ifload: ifload.o ifloadao.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciupi.o ciutl.o ciifl.o ciutf8.o
++	echo ld ifload..
++	$(CC) -o ifload ifload.o ifloadao.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciupi.o ciutl.o ciifl.o ciutf8.o $(CCLIBS)
++
++ifloadao.o: ifloadao.c cisis.h
++	echo ifloadao..
++	$(CC) $(CCOPTS) ifloadao.c
++
++ifload.o: ifload.c cisis.h
++	echo ifload..
++	$(CC) $(CCOPTS) ifload.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++ciupi.o: ciupi.c ciupi.h cisis.h
++	 echo ciupi..
++	 $(CC) $(CCOPTS) ciupi.c
++
++ciifl.o: ciifl.c ciiflh.c ciupi.h cisis.h
++	 echo ciifl..
++	 $(CC) $(CCOPTS) ciifl.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/ifmerge.mak b/ifmerge.mak
+new file mode 100644
+index 0000000..f190a02
+--- /dev/null
++++ b/ifmerge.mak
+@@ -0,0 +1,67 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++ifmerge: ifmerge.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciupi.o ciutl.o ciifl.o ciutf8.o
++	echo ld ifmerge..
++	$(CC) -o ifmerge ifmerge.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciupi.o ciutl.o ciifl.o ciutf8.o $(CCLIBS)
++
++ifmerge.o: ifmerge.c cisis.h
++	echo ifmerge..
++	$(CC) $(CCOPTS) ifmerge.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++ciupi.o: ciupi.c ciupi.h cisis.h
++	 echo ciupi..
++	 $(CC) $(CCOPTS) ciupi.c
++
++ciifl.o: ciifl.c ciiflh.c ciupi.h cisis.h
++	 echo ciifl..
++	 $(CC) $(CCOPTS) ciifl.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/msrt.mak b/msrt.mak
+new file mode 100644
+index 0000000..5b45500
+--- /dev/null
++++ b/msrt.mak
+@@ -0,0 +1,70 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++msrt: msrt.o cifm1.o cifm2.o cifm3.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o
++	echo ld msrt..
++	$(CC) -o msrt msrt.o cifm1.o cifm2.o cifm3.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o $(CCLIBS)
++
++msrt.o: msrt.c cisis.h
++	echo msrt..
++	$(CC) $(CCOPTS) msrt.c
++
++cifm1.o: cifm1.c cifmt.h cisis.h
++	echo cifm1..
++	$(CC) $(CCOPTS) cifm1.c
++
++cifm2.o: cifm2.c cifmt.h cisis.h
++	echo cifm2..
++	$(CC) $(CCOPTS) cifm2.c
++
++cifm3.o: cifm3.c cifmt.h cisis.h
++	echo cifm3..
++	$(CC) $(CCOPTS) cifm3.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/mxcp.mak b/mxcp.mak
+new file mode 100644
+index 0000000..e33d1e1
+--- /dev/null
++++ b/mxcp.mak
+@@ -0,0 +1,59 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++mxcp: mxcp.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o
++	echo ld mxcp..
++	$(CC) -o mxcp mxcp.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o $(CCLIBS)
++
++mxcp.o: mxcp.c cisis.h
++	echo mxcp..
++	$(CC) $(CCOPTS) mxcp.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/mxf0.mak b/mxf0.mak
+new file mode 100644
+index 0000000..c783918
+--- /dev/null
++++ b/mxf0.mak
+@@ -0,0 +1,59 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++mxf0: mxf0.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o
++	echo ld mxf0..
++	$(CC) -o mxf0 mxf0.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o $(CCLIBS)
++
++mxf0.o: mxf0.c cisis.h
++	echo mxf0..
++	$(CC) $(CCOPTS) mxf0.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c
+diff --git a/retag.mak b/retag.mak
+new file mode 100644
+index 0000000..8695daf
+--- /dev/null
++++ b/retag.mak
+@@ -0,0 +1,59 @@
++
++CIFFI = 0
++LIND = 0
++LIND4 = 0
++ISISXL = 0
++ISISXL512 = 0
++LINDLUX = 0
++PROCXSLT = 0
++_FILE_OFFSET_BITS = 0
++_LARGEFILE64_SOURCE = 0
++SIXTY_FOUR = 0
++SUPERISIS = 0
++MAXMFRL=0
++
++CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DLIND4=$(LIND4) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX) -DPROCXSLT=$(PROCXSLT) -D_FILE_OFFSET_BITS=$(_FILE_OFFSET_BITS) -D_LARGEFILE64_SOURCE=$(_LARGEFILE64_SOURCE) -DSIXTY_FOUR=$(SIXTY_FOUR) -DSUPERISIS=$(SUPERISIS) -DMAXMFRL=$(MAXMFRL)
++#CICONF1 = -DCIFFI=$(CIFFI) -DLIND=$(LIND) -DISISXL=$(ISISXL) -DISISXL512=$(ISISXL512) -DLINDLUX=$(LINDLUX)
++CICONF2 = -DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1 -D_GLIBC_VERSIONED_SOURCE
++
++CC = cc
++CCFLAGS = -funsigned-char -Wall
++CCLIBS = -lm
++CCOPTS = -c $(CCFLAGS) $(CICONF1) $(CICONF2)
++
++retag: retag.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o
++	echo ld retag..
++	$(CC) -o retag retag.o cidbx.o cigiz.o cirec.o ciupd.o citrm.o ciutl.o ciutf8.o $(CCLIBS)
++
++retag.o: retag.c cisis.h
++	echo retag..
++	$(CC) $(CCOPTS) retag.c
++
++cidbx.o: cidbx.c cisis.h
++	echo cidbx..
++	$(CC) $(CCOPTS) cidbx.c
++
++cigiz.o: cigiz.c cisis.h
++	 echo cigiz..
++	 $(CC) $(CCOPTS) cigiz.c
++
++cirec.o: cirec.c cisis.h
++	 echo cirec..
++	 $(CC) $(CCOPTS) cirec.c
++
++ciupd.o: ciupd.c cisis.h
++	 echo ciupd..
++	 $(CC) $(CCOPTS) ciupd.c
++
++citrm.o: citrm.c cisis.h
++	 echo citrm..
++	 $(CC) $(CCOPTS) citrm.c
++
++ciutl.o: ciutl.c cisis.h
++	 echo ciutl..
++	 $(CC) $(CCOPTS) ciutl.c
++
++
++ciutf8.o: ciutf8.c cisis.h
++	echo ciutf8..
++	$(CC) $(CCOPTS) ciutf8.c

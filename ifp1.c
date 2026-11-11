@@ -147,7 +147,11 @@ n,umb,key1,lang,type,key2,prefkey,qualkey,key1l,key2l,prefl,quall);
 	if ((++count % xtell) == 0)
 	    fprintf(stderr,"+++ %"_LD_" %s%s%s %d,%d,%d [%c,%c]\n",
                 count,prefkey,key1,qualkey,prefl,key1l,quall,lang,type);
+#if UTF8
+	uppercase_utf8((unsigned char *)keyaut);
+#else
 	for (p=keyaut; *p; p++) *p=isisuctab[*p];
+#endif // UTF8
 	if (memcmp(key1,keydel,key1l) == 0) {
 	    printf("+++ %s keyaut=%s (%"_LD_")\n",key1,keyiox,umb);
 	    TERM(itrmaut,ifnautp,highv);
@@ -163,7 +167,11 @@ n,umb,key1,lang,type,key2,prefkey,qualkey,key1l,key2l,prefl,quall);
 		fatal("TRMrc");
 	    }
 	}
+#if UTF8
+	uppercase_utf8((unsigned char *)keyiox);
+#else
 	for (p=keyiox; *p; p++) *p=isisuctab[*p];
+#endif // UTF8
         TERM(itrmiox,ifnioxp,keyiox);
         if (TRMrc != RCNORMAL) {
             printf("*** ifniox=%s keyiox=%s (%"_LD_")\n",ifnioxp,keyiox,umb);

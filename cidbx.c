@@ -1195,27 +1195,22 @@ char *namep;
 #endif
     }
 #if UTF8
-    p="CISISUNI Interface v5.7e";
-    q="Copyright (c)BIREME/PAHO/EdS 2014. [http://reddes.bvsalud.org/projects/cisis]";
+    p = "XCore Engine v0.1.0";
+    q = "Technology lineage: CISIS 5.7e";
+    q3 = "2026 - ABCD Community. [https://abcd-community.org/]";
 #else
-    p="CISIS Interface v5.7e";
-    q="Copyright (c)BIREME/PAHO 2010. [http://reddes.bvsalud.org/projects/cisis]";
+    p = "XCore Engine v0.1.0";
+    q = "Technology lineage: CISIS 5.7e";
+    q3 = "2026 - ABCD Community. [https://abcd-community.org/]";
 #endif
 
-  //q="Copyright (c)BIREME/PAHO 2010. [http://www.bireme.br/products/cisis]";
-  //q2="Copyright (c)BIREME/PAHO 2010. [http://bvsmodelo.bvsalud.org/php/index.php?lang=pt]";
-    q3="Copyright (c)BIREME/PAHO 2010. [http://bvsmodelo.bvsalud.org/php/level.php?lang=pt&component=28&item=1]";
-
     if (namep[0] == '?')
-      sprintf(cicopyr_area,"%s%s - %s\n%s%s\n%s\n",p,vci,namep+1,p,vwi,q);
-      //sprintf(cicopyr_area,"%s%s - %s\n%s%s\n%s\n%s\n",p,vci,namep+1,p,vwi,q,q3);
+        sprintf(cicopyr_area, "%s%s - %s\n%s%s\n%s\n%s\n", p, vci, namep + 1, p, vwi, q, q3);
     else
-      sprintf(cicopyr_area,"%s%s - %s\n%s\n",p,vci,namep,q);
-      
-    return(cicopyr_area);
+        sprintf(cicopyr_area, "%s%s - %s\n%s\n%s\n", p, vci, namep, q, q3);
+
+    return (cicopyr_area);
 }
-
-
 
 /* *****************************************************
    Funzioni di Conversione
