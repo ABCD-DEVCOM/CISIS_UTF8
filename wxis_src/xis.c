@@ -245,6 +245,7 @@ typedef enum {
    ARG_ARGS,
    ARG_COMPILE,
    ARG_HELLO,
+   ARG_HELP,
    ARG_IN,
    ARG_SCRIPT,
    ARG_SOURCE,
@@ -498,6 +499,25 @@ void xisLicenseInfo(void)
     printf("\nWXIS release date: %s\n",  XIS_RELEASE_DATE);
 }
 
+/* ================================================================= xisUsage */
+void xisUsage(void)
+{
+    printf("\nUsage: wxis IsisScript=<script.xis> [name=value ...]\n"
+           "\n"
+           "  IsisScript=<file>  script to run; the name must end in .xis or .xic\n"
+           "  <name>=<value>     any other pair is passed to the script as a CGI parameter\n"
+           "  hello              print the version banner (with a text/plain header)\n"
+           "  what               print the version banner\n"
+           "  help               print this text\n"
+           "  args               echo the command line arguments\n"
+           "  in=<file>          read more arguments from <file>\n"
+           "  compile=<file>     compile the script into <file> instead of running it\n"
+           "  +source            print the script source when compiling\n"
+           "\n"
+           "Under a web server (CGI), wxis takes IsisScript and the other parameters\n"
+           "from the request (QUERY_STRING, POST body or PATH_TRANSLATED).\n");
+}
+
 /* =========================================================== xisArgInstant */
 void xisArgInstant(XIS_VAR *xisVar)     /* XIS variables */
 {
@@ -511,6 +531,7 @@ void xisArgInstant(XIS_VAR *xisVar)     /* XIS variables */
     printf("%s",cicopyr(xisVersion));
       xisLicenseInfo();
    }
+   if (xisVar->argList[ARG_HELP].text) xisUsage();
 
 } /* xisArgInstant */
 
@@ -573,6 +594,10 @@ XIS_ERROR xisRun(XIS_VAR *xisVar)   /* XIS variables */
 
     /* No script parameter present */
     } else {
+        /* hello/what/help only ask for information: nothing to run, not an error */
+        if (xisVar->argList[ARG_HELLO].text || xisVar->argList[ARG_WHAT].text || xisVar->argList[ARG_HELP].text) return XIS_ERROR_OK;
+        /* started by hand (not as CGI) with nothing to do: show the usage instead of an error */
+        if (!getenv("REQUEST_METHOD")) { xisUsage(); return XIS_ERROR_OK; }
         efc_free(xisVar->programPath); xisVar->programPath = NULL;// Code Guard
         XIS_ERR(&(xisVar->error),efc_error(&(xisVar->error),XIS_ERROR_MISSING,xisVar->argList[ARG_SCRIPT].id), xisVar);
    }
@@ -729,6 +754,7 @@ void xisArgLoad(XIS_VAR *xisVar)        /* XIS variables */
     arg_load(&(xisVar->argList[ARG_ARGS]),      "args",         ARG_TYPE_BOOLEAN);
     arg_load(&(xisVar->argList[ARG_COMPILE]),   "compile",      ARG_TYPE_TEXT);
     arg_load(&(xisVar->argList[ARG_HELLO]),     "hello",        ARG_TYPE_BOOLEAN);
+    arg_load(&(xisVar->argList[ARG_HELP]),      "help",         ARG_TYPE_BOOLEAN);
     arg_load(&(xisVar->argList[ARG_IN]),        "in",           ARG_TYPE_TEXT);
     arg_load(&(xisVar->argList[ARG_SCRIPT]),    "IsisScript",   ARG_TYPE_TEXT);
     arg_load(&(xisVar->argList[ARG_SOURCE]),    "+source",      ARG_TYPE_BOOLEAN);
