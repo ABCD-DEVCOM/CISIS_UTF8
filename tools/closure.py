@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calcula o conjunto de arquivos realmente usados para compilar os alvos (via .mak + gcc -MM). Uso: closure.py <raiz> alvo1 alvo2 ..."""
+"""Computes the set of files really needed to build the targets (via .mak + gcc -MM). Usage: closure.py <root> target1 target2 ..."""
 import re, subprocess, sys, os
 root = sys.argv[1]; targets = sys.argv[2:]
 need = set(); srcs = set(); hdrs = set()
@@ -7,7 +7,7 @@ def add_mak(t):
     p = os.path.join(root, t + '.mak')
     need.add(t + '.mak')
     txt = open(p, 'rb').read().decode('latin-1').replace('\r', '')
-    for m in re.finditer(r'([A-Za-z0-9_./-]+\.(?:c|h|cpp))\b', txt):   # caminhos citados nos comandos (ex.: wxis_src/cimsrt.c)
+    for m in re.finditer(r'([A-Za-z0-9_./-]+\.(?:c|h|cpp))\b', txt):   # paths quoted in the commands (e.g. wxis_src/cimsrt.c)
         f = m.group(1)
         if os.path.exists(os.path.join(root, f)):
             (srcs if f.endswith(('.c','.cpp')) else hdrs).add(f)
@@ -32,4 +32,4 @@ for s in sorted(srcs):
                 if os.path.exists(os.path.join(root, tok)) and not tok.endswith('.o'): hdrs.add(tok)
 allf = sorted(need | srcs | hdrs)
 print("\n".join(allf))
-sys.stderr.write("fontes=%d  cabecalhos=%d  makes=%d  total=%d\n" % (len(srcs), len(hdrs - srcs), len(need), len(allf)))
+sys.stderr.write("sources=%d  headers=%d  makefiles=%d  total=%d\n" % (len(srcs), len(hdrs - srcs), len(need), len(allf)))
