@@ -1,26 +1,34 @@
 @echo off
-REM build_windows_bcc55.bat - compila mx.exe e wxis.exe (UTF-8) com Borland C++ 5.5 a partir da RAIZ do repositorio.
-REM Baseado nos .bat oficiais de CISIS_UNI_Win\projects (mesmas listas de arquivos e flags).
-REM *** NAO TESTADO: precisa rodar num Windows com o BCC55. Se falhar, guarde a saida e compare com os .bat oficiais. ***
-REM Uso:  build_windows_bcc55.bat [ffi|1660]      (padrao: ffi = o mesmo tipo do wxis do ABCD: F/M/1048576)
+REM build_windows_bcc55.bat - builds mx.exe and wxis.exe (UTF-8) with Borland C++ 5.5, run from the repository ROOT.
+REM Based on the official BIREME .bat files in CISIS_UNI_Win\projects (same file lists and flags).
+REM For all variants at once (and the ANSI engine) use build_windows_all_bcc55.bat.
+REM *** NOT TESTED: it needs a Windows machine with BCC 5.5. If it fails, keep the output and compare it with the official .bat files. ***
+REM Usage:  build_windows_bcc55.bat [isis1660|ffi1660]      (default: isis1660)
+REM    isis1660  banner PC32/W/M/32767/16/60/I      the format of ABCD's administrative databases (acces, loanobjects, reserve, ...)
+REM    ffi1660   banner PC32/W/F/M/1048576/16/60/I  long records (up to 1 MiB)
 setlocal
 cd /d "%~dp0"
 if "%BCC%"=="" set BCC=C:\Borland\BCC55
 if not exist "%BCC%\Bin\bcc32.exe" (
-  echo bcc32.exe nao encontrado em %BCC%\Bin. Defina a variavel BCC ou rode find_compilers.ps1
+  echo bcc32.exe not found in %BCC%\Bin. Set the BCC variable or run find_compilers.ps1
   exit /b 1
 )
 set PATH=%BCC%\Bin;%PATH%
 set VAR=%1
-if "%VAR%"=="" set VAR=ffi
+if "%VAR%"=="" set VAR=isis1660
 set FFI=1
-if "%VAR%"=="1660" set FFI=0
+if /i "%VAR%"=="isis1660" set FFI=0
+if /i "%VAR%"=="isis1660" goto varok
+if /i "%VAR%"=="ffi1660" goto varok
+echo unknown variant: %VAR%   (valid: isis1660 ffi1660; use build_windows_all_bcc55.bat for the others)
+exit /b 1
+:varok
 set OUT=dist\windows32\%VAR%
 if not exist dist mkdir dist
 if not exist dist\windows32 mkdir dist\windows32
 if not exist %OUT% mkdir %OUT%
 
-REM INCLOADX=1 faz o CISIS ler uctab=/actab= do .par (necessario para russo, grego, hebraico...)
+REM INCLOADX=1 makes CISIS read uctab=/actab= from the .par file (needed for Russian, Greek, Hebrew...)
 set COMMON=-I"%BCC%\Include" -DUTF8=1 -DINCLOADX=1 -DCIFFI=%FFI% -DLIND=0 -DLIND4=0 -DCIWTF=1 -DISISXL=1 -DISISXL512=0 -DINCPROCX=1 -DINCPRECX=1
 
 echo ===== mx =====
@@ -44,11 +52,11 @@ del wxis_src\*.obj
 del *.tds 2>nul
 del %OUT%\*.tds 2>nul
 echo.
-echo PRONTO: %OUT%\mx.exe e %OUT%\wxis.exe
+echo DONE: %OUT%\mx.exe and %OUT%\wxis.exe
 %OUT%\mx.exe
 exit /b 0
 
 :erro
 echo.
-echo *** FALHOU (veja a mensagem acima) ***
+echo *** FAILED (see the message above) ***
 exit /b 1

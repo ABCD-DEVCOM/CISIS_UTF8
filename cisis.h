@@ -768,7 +768,7 @@ typedef struct msstru {
 #if _LARGEFILE64_SOURCE
 #define INFX        off_t
 #else /* LARGEFILE64_SOURCE */
-#define INFX        unsigned int
+#define INFX        LONGX        /* signed: info3 < 0 means BITSTRING (was unsigned int) */
 #endif /* _LARGEFILE64_SOURCE */
 #else  /* SIXTY_FOUR */
 #define INFX        LONGX        /* gdb */
