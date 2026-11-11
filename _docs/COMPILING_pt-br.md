@@ -1,5 +1,7 @@
 # Compilando o CISIS (UTF-8): Linux e Windows, 32 e 64 bits
 
+> **Nota:** este é o original em português. A versão mantida é [`COMPILING.md`](COMPILING.md) (inglês), já atualizada: o padrão do `build_linux.sh` agora é `isis1660` (não `ffi1660`), são 14 variantes (`-v list`), há `build_all.sh` e `build_windows_all_bcc55.bat`. Os limites exatos de cada variante estão em [`LIMITS.md`](LIMITS.md).
+
 ## O que foi verificado e o que não foi
 
 | Alvo | Estado |

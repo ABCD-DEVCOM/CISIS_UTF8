@@ -57,11 +57,17 @@ XCore Engine v0.1.0 / G / PC / 512G / W / F / L4 / M / 1048576 / 16 / 60 / I / 6
 | `ffi512`    | `F/L/M/1048576/16/512`    | 1,048,576 | 1,048,527 | 512 | 16,777,215     | 8 GB   | LIND | yes |
 | `ffi512G4`  | `512G/F/L4/M/1048576/16/512` | 1,048,576 | 1,048,527 | 512 | 2,147,483,521* | 32 GB | LIND, 4-byte MFN | no |
 | `ffi1660`   | `F/M/1048576/16/60`       | 1,048,576 | 1,048,527 | 60  | 16,777,215     | 8 GB   | classic | yes |
-| `bigisis`   | `512G/F/M/1048576/16/256` | 1,048,576 | 1,048,527 | 256 | 16,777,215     | 32 GB  | classic | no |
+| `bigisis`   | `512G/F/M/1048576/16/256` | 1,048,576 | 1,048,527 | 256 | 16,777,215     | 32 GB† | classic | yes† |
 
 All lengths are in bytes. `*` = nominal limit is 2,147,483,647, the highest MFN that really works is 2,147,483,521
-(see [Surprises](#surprises-found-while-measuring)). `bigisis` is a large-file build but keeps 3-byte MFNs, so its MFN limit is the small one. "Windows" = can be built with Borland C++ 5.5 by
-`build_windows_all_bcc55.bat` (it has no large-file seek: the G/G4 variants and `bigisis` are Linux-only).
+(see [Surprises](#surprises-found-while-measuring)). `bigisis` is a large-file build on Linux but keeps 3-byte MFNs, so its MFN limit is the small one.
+"Windows" = can be built with Borland C++ 5.5 by `build_windows_all_bcc55.bat`; BCC 5.5 has no large-file seek, so the
+`G`/`G4` variants are Linux-only.
+
+† On Windows `bigisis` is built **without** large-file support (the way BIREME's own Windows `bigisis` is, banner
+`PC32/W/F/M/1048576/16/256/I`): same record, key and MFN limits, but the master stops at 2 GiB (32-bit `off_t`; the
+`mstxl` of such a build is 4, **derived** from `cidbx.c`). Windows banners start with `PC32` instead of `G/PC`
+and never show `512G`.
 
 How each column was obtained:
 
@@ -75,13 +81,27 @@ How each column was obtained:
 
 ### What to pick
 
-* Default for ABCD (`wxis`): **`ffi1660`** — records up to 1 MiB, keys up to 60, 16.7 million records, classic index. On a 32-bit
-  `off_t` system the master stops at 2 GiB.
-* Records longer than 32 KB: any `F` variant (`ffi*`, `bigisis`).
+* Default (and the ABCD administrative databases): **`isis1660`** — records up to 32,767 bytes, keys up to 60, 16.7 million records,
+  classic index. This is the format of the `wxis` that ABCD ships today (see "ABCD in production" below).
+* ABCD's large databases: **`bigisis`** — records up to 1 MiB, keys up to 256, 16.7 million records, classic index; on Linux 64-bit
+  masters beyond 2 GiB. It is not compatible with `isis1660` (different master layout: section 4).
+* Records longer than 32 KB: any `F` variant (`ffi*`, `ffi1660`, `bigisis`). `ffi1660` is the same format as `bigisis`
+  except for the key length (60 instead of 256) and the file-size handling; ABCD does not use it.
 * More than 16.7 million records, or masters over 2 GiB on a 32-bit system: the `G4` variants (`lindG4 lind512G4 ffiG4 ffiG4_4 ffi512G4`); Linux only. Note that `bigisis` has 3-byte MFNs.
 * Index keys longer than 60 characters: `*512` variants (512) or `bigisis` (256).
 * Records longer than 1 MiB: `ffiG4_4` (4 MiB), or add a row with another `MAXMFRL` to `build_linux.sh` (the `ffiG4_4` row is the template).
 * Do not mix variants on one database: section 4.
+
+### ABCD in production (reported by the ABCD maintainer; not measured here)
+
+| ABCD uses | for | binary reported | corresponding variant |
+|---|---|---|---|
+| Windows `wxis.exe` | administrative databases (`acces`, `loanobjects`, `reserve`, `copies`, `servers`, `suggestion`, `trans`) | CISIS 5.2bb `PC32/W/M/32767/16/60/I` | `isis1660` |
+| Linux `wxis` | the same databases | CISIS 5.7e `G/PC/W/M/32767/16/60/I/64bits` | `isis1660` (64-bit) |
+| Windows `bigisis` | large databases | BIREME 5.7f `PC32/W/F/M/1048576/16/256/I` | `bigisis` (Windows build, files < 2 GiB) |
+
+The banners match field by field; that the old 5.2bb binary and the new `isis1660` read each other's files byte for byte
+has **not** been tested (no Windows machine here). Run `smoke_test.sh` / a read of a real ABCD database before replacing a binary.
 
 ---
 
@@ -152,8 +172,8 @@ that address: capacity = **512 MB × 2^mstxl** (**derived** from `cirec.c`, `rec
 
 | build | `mstxl` | capacity | records start at multiples of |
 |---|---:|---:|---:|
-| `LIND4` (or `SUPERISIS`) and large-file: `lindG4 lind512G4 ffiG4 ffiG4_4 ffi512G4 bigisis` | 6 | **32 GB** | 64 bytes |
-| `CIFFI` otherwise: `ffi ffi512 ffi1660` | 4 | **8 GB** | 16 bytes |
+| `LIND4` (or `SUPERISIS`) and large-file: `lindG4 lind512G4 ffiG4 ffiG4_4 ffi512G4 bigisis` (Linux) | 6 | **32 GB** | 64 bytes |
+| `CIFFI` otherwise: `ffi ffi512 ffi1660`, and `bigisis` built without large-file (Windows) | 4 | **8 GB** | 16 bytes |
 | everything else: `isis isisG isis1660 lind lind512` | 0 | **512 MB** | 1 byte |
 
 * **Measured:** `isis` fails at 512 MB with `fatal: recxref/comp+MSNVSPLT`; `ffi1660` (8 GB by the table) held 2 GB
@@ -164,7 +184,7 @@ that address: capacity = **512 MB × 2^mstxl** (**derived** from `cirec.c`, `rec
 * The file system matters too: a build with a 32-bit `off_t` (every non-G build on a 32-bit system, and every
   Borland C++ 5.5 build, **derived** for the latter) cannot seek beyond 2 GB, so the `mstxl` capacity is academic there.
   **Measured:** 32-bit `ffi1660` stops when the file reaches 2,147,483,647 bytes (`fatal: recwmast/write/rec`); 32-bit `ffiG4`
-  (large-file) held a 4.1 GB master and read back its last record. The Windows BCC 5.5 builds behave like 32-bit `ffi1660`.
+  (large-file) held a 4.1 GB master and read back its last record. The Windows BCC 5.5 builds behave like 32-bit `ffi1660` (**derived**, never run).
 
 ### 3.6 Inverted file
 
@@ -326,5 +346,5 @@ All binaries are the ones produced by `build_all.sh -u 1` (UTF-8), 32- and 64-bi
 | `.mst` capacity | a 1 MB (or 30 KB) record doubled with `create=` + `append=` until the file passes 512 MB / 1 GB / 2 GB |
 | compatibility | every variant creates a database; every variant reads it (28 × 28 cells); compare master dump, dictionary and 7 searches with what the creator prints |
 
-Not covered: Windows binaries (no compiler here), 8 GB and 32 GB masters, files above 4 GB, the `.ifp`/`.iyp` size limit,
+Not covered: Windows binaries (no compiler here; neither the BCC 5.5 builds nor 5.2bb ↔ `isis1660` compatibility), 8 GB and 32 GB masters, files above 4 GB, the `.ifp`/`.iyp` size limit,
 concurrent users (`M` flag), and the ANSI builds (same numbers; only the character handling differs).
