@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# build_linux.sh - build CISIS / XCore Engine programs (mx, wxis, ...) on Linux, from the repository root.
+# build_linux.sh - build CISIS / XisCore Engine programs (mx, wxis, ...) on Linux, from the repository root.
 #
-# Usage:  bash build_linux.sh [-a 32|64] [-v VARIANT] [-t "targets"] [-u 0|1] [-x 0|1] [-j N] [-s] [-c]
+# Usage:  bash build_linux.sh [-a 32|64] [-v VARIANT] [-t "targets"] [-u both|1|0] [-x 0|1] [-j N] [-s] [-c]
 #   -a  architecture: 32 (default, safest) or 64 (see _docs/COMPILING.md)
 #   -v  variant (default isis1660, the format of ABCD's administrative databases; ABCD's large databases use bigisis).
 #       "-v list" prints all of them; _docs/LIMITS.md gives the exact limits of each:
 #         isis isisG isis1660 lind lindG4 lind512 lind512G4 ffi ffiG4 ffiG4_4 ffi512 ffi512G4 ffi1660 bigisis
 #   -t  targets (.mak names without the extension). Default: "mx wxis". "all" = every .mak
-#   -u  UTF-8: 1 (default) or 0 (ANSI build; output goes to dist/.../<variant>-ansi)
+#   -u  character set: "both" (default: the UTF-8 engine, then the ANSI one), 1 = UTF-8 only, 0 = ANSI only
 #   -x  INCLOADX: 1 = read uctab=/actab= from the .par file; 0 = ignore it. Default: same as -u
 #       (BIREME's official ANSI builds ignore them)
 #   -j  parallel jobs (default: nproc)
 #   -s  build with SIGNED char (like the Borland C++ 5.5 used for the official .exe); default: -funsigned-char
 #   -c  delete build/ and dist/ before building
 #
-# Output: dist/linux<arch>/<variant>/<target>   (logs in build/<arch>-<variant>/logs)
+# Output: dist/linux<arch>/utf8/<variant>/<target>  and  dist/linux<arch>/ansi/<variant>/<target>
+#         (logs in build/<arch>-<utf8|ansi>-<variant>/logs; "-signed" / "-par" are added to <variant> with -s / -x)
 # Object files stay in build/, the source tree is not touched.
 
 set -u
@@ -43,15 +44,28 @@ variant_row() {
   esac
 }
 
-ARCH=32; VARIANT=isis1660; TARGETS="mx wxis"; UTF8=1; JOBS=$(nproc 2>/dev/null || echo 2); CLEAN=0; SIGNED=0; INCX=""
+ORIG_ARGS=("$@")
+ARCH=32; VARIANT=isis1660; TARGETS="mx wxis"; UTF8=both; JOBS=$(nproc 2>/dev/null || echo 2); CLEAN=0; SIGNED=0; INCX=""
 while getopts "a:v:t:u:x:j:csh" o; do
   case $o in
     a) ARCH=$OPTARG;; v) VARIANT=$OPTARG;; t) TARGETS=$OPTARG;; u) UTF8=$OPTARG;; x) INCX=$OPTARG;; j) JOBS=$OPTARG;; c) CLEAN=1;; s) SIGNED=1;;
-    *) sed -n '2,17p' "$0"; exit 1;;
+    *) sed -n '2,18p' "$0"; exit 1;;
   esac
 done
 
 if [ "$VARIANT" = list ]; then echo "$VARIANT_NAMES" | tr ' ' '\n'; exit 0; fi
+
+# "-u both": build the UTF-8 engine, then the ANSI one, with the same options (-c is done only once, here)
+case $UTF8 in
+  both) if [ $CLEAN = 1 ] && [ -z "${CISIS_NOCLEAN:-}" ]; then R=$(cd "$(dirname "$0")" && pwd); rm -rf "$R/build" "$R/dist"; fi
+        RC=0
+        CISIS_NOCLEAN=1 bash "$0" "${ORIG_ARGS[@]}" -u 1 || RC=1
+        echo
+        CISIS_NOCLEAN=1 bash "$0" "${ORIG_ARGS[@]}" -u 0 || RC=1
+        exit $RC;;
+  0|1) ;;
+  *) echo "ERROR: -u must be both, 1 (UTF-8) or 0 (ANSI)"; exit 1;;
+esac
 
 ROOT=$(cd "$(dirname "$0")" && pwd)
 [ -f "$ROOT/cisis.h" ] || { echo "ERROR: run this script from the repository root (where cisis.h is)"; exit 1; }
@@ -87,16 +101,17 @@ CCFLAGS="-funsigned-char -Wall -DUTF8=$UTF8"
 if [ "$TARGETS" = "all" ]; then
   TARGETS=$(cd "$ROOT" && ls *.mak | sed 's/\.mak$//' | tr '\n' ' ')
   # mxgw and mz still use the ANSI tables directly (isiswctab) and are not ported to UTF-8:
-  # with "all" they are only built in ANSI mode (-u 0). With an explicit -t the script tries anyway.
-  if [ "$UTF8" = 1 ]; then TARGETS=$(for t in $TARGETS; do case $t in mxgw|mz) echo "WARNING: $t skipped in UTF-8 (not ported yet; use -u 0)" >&2;; *) printf '%s ' $t;; esac; done); fi
+  # with "all" they are only built in the ANSI tree. With an explicit -t the script tries anyway.
+  if [ "$UTF8" = 1 ]; then TARGETS=$(for t in $TARGETS; do case $t in mxgw|mz) echo "WARNING: $t skipped in UTF-8 (not ported yet; they are built in the ANSI tree)" >&2;; *) printf '%s ' $t;; esac; done); fi
 fi
 
+CS=utf8; [ "$UTF8" = 0 ] && CS=ansi   # UTF-8 and ANSI builds go to separate trees: dist/linux64/utf8/..., dist/linux64/ansi/...
 SUF=""; [ $SIGNED = 1 ] && SUF="-signed"
-[ "$UTF8" = 0 ] && SUF="$SUF-ansi"   # ANSI build goes to another folder: dist/linux64/isis1660-ansi
-[ "$UTF8" = 0 ] && [ "$INCX" = 1 ] && SUF="$SUF-par"   # ANSI reading uctab=/actab= from the .par: dist/.../isis1660-ansi-par
-BUILD="$ROOT/build/$ARCH-$VARIANT$SUF"; WORK="$BUILD/work"; LOGS="$BUILD/logs"
-DIST="$ROOT/dist/linux$ARCH/$VARIANT$SUF"
-[ $CLEAN = 1 ] && rm -rf "$ROOT/build" "$ROOT/dist"
+[ "$UTF8" = 0 ] && [ "$INCX" = 1 ] && SUF="$SUF-par"   # ANSI reading uctab=/actab= from the .par: dist/linux64/ansi/isis1660-par
+REL="dist/linux$ARCH/$CS/$VARIANT$SUF"
+BUILD="$ROOT/build/$ARCH-$CS-$VARIANT$SUF"; WORK="$BUILD/work"; LOGS="$BUILD/logs"
+DIST="$ROOT/$REL"
+[ $CLEAN = 1 ] && [ -z "${CISIS_NOCLEAN:-}" ] && rm -rf "$ROOT/build" "$ROOT/dist"
 mkdir -p "$WORK" "$LOGS" "$DIST"
 
 # working copy (object files outside the source tree); .mak files converted to LF
@@ -104,7 +119,7 @@ rm -rf "$WORK"; mkdir -p "$WORK"
 (cd "$ROOT" && cp -- *.c *.h *.mak "$WORK"/ 2>/dev/null; [ -d wxis_src ] && cp -r wxis_src "$WORK"/)
 sed -i 's/\r$//' "$WORK"/*.mak
 
-echo "== CISIS | arch=$ARCH | variant=$VARIANT$SUF | UTF8=$UTF8 | gcc $(gcc -dumpversion) | targets: $TARGETS"
+echo "== CISIS | arch=$ARCH | variant=$VARIANT$SUF | $CS (UTF8=$UTF8) | gcc $(gcc -dumpversion) | targets: $TARGETS"
 FAIL=0; SUMMARY=""
 for t in $TARGETS; do
   if [ ! -f "$WORK/$t.mak" ]; then SUMMARY="$SUMMARY\n  $t: MISSING $t.mak"; FAIL=1; continue; fi
@@ -113,10 +128,10 @@ for t in $TARGETS; do
   if [ -x "$WORK/$t" ]; then
     cp "$WORK/$t" "$DIST/$t"
     W=$(grep -c 'warning:' "$LOGS/$t.log")
-    SUMMARY="$SUMMARY\n  $t: OK  ($W warnings)  -> dist/linux$ARCH/$VARIANT$SUF/$t"
+    SUMMARY="$SUMMARY\n  $t: OK  ($W warnings)  -> $REL/$t"
   else
     E=$(grep -m1 -E 'error|undefined reference' "$LOGS/$t.log" | cut -c1-110)
-    SUMMARY="$SUMMARY\n  $t: FAILED  ${E}  (log: build/$ARCH-$VARIANT$SUF/logs/$t.log)"; FAIL=1
+    SUMMARY="$SUMMARY\n  $t: FAILED  ${E}  (log: build/$ARCH-$CS-$VARIANT$SUF/logs/$t.log)"; FAIL=1
   fi
 done
 printf "$SUMMARY\n"
