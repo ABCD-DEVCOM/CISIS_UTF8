@@ -4,14 +4,8 @@
 #include <ctype.h>
 #include <string.h>
 
-#if CIAPI
-#include "ciapi.h"
-#else /* CIAPI */
-#include "cisis.h"                  /* CISIS Interface header file */
-#endif /* CIAPI */
-
-#include "mx.h"                     /* MX Program header file */
-
+/* <dirent.h> must come before cisis.h (as in ciupd.c): Borland's dirent.h pulls in windows.h,
+   whose typedefs (ULONG...) break once cisis.h has defined them as macros */
 #if UTF8
 #define DIR_FILE 0                  /* list=directory */
 #else
@@ -21,6 +15,14 @@
 #include <sys/types.h>
 #include <dirent.h>
 #endif 
+
+#if CIAPI
+#include "ciapi.h"
+#else /* CIAPI */
+#include "cisis.h"                  /* CISIS Interface header file */
+#endif /* CIAPI */
+
+#include "mx.h"                     /* MX Program header file */
 
 #define XML_FILE 1                  /* xml=file,tag */
 #if XML_FILE
