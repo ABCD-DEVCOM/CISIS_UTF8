@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # smoke_test.sh - quick test of mx and wxis in UTF-8 (accents, Russian, Hebrew).
-# Usage: bash smoke_test.sh dist/linux32/isis1660        (run it from the repository root)
+# Usage: bash smoke_test.sh dist/linux64/utf8/isis1660        (run it from the repository root)
 # The character tables it uses are in tests/ (an actab with Hebrew letters added).
 set -u
 export LC_ALL=POSIX
 D=${1:-}
-[ -x "$D/mx" ] && [ -x "$D/wxis" ] || { echo "usage: $0 <folder with mx and wxis>   e.g. dist/linux32/isis1660"; exit 1; }
+[ -x "$D/mx" ] && [ -x "$D/wxis" ] || { echo "usage: $0 <folder with mx and wxis>   e.g. dist/linux64/utf8/isis1660"; exit 1; }
 D=$(cd "$D" && pwd)
 HERE=$(cd "$(dirname "$0")" && pwd)
 TAB="$HERE/tests"

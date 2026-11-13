@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # smoke_test_ansi.sh - quick test of mx, wxis and the utilities built as ANSI (UTF8=0), with ISO-8859-1 data.
-# Usage: bash smoke_test_ansi.sh dist/linux64/isis1660-ansi      (run it from the repository root)
+# Usage: bash smoke_test_ansi.sh dist/linux64/ansi/isis1660      (run it from the repository root)
 # Tables used: tests/isisuctab_ansi.tab (accented letters -> unaccented upper case) and tests/isisactab_ansi.tab
 set -u
 export LC_ALL=POSIX
 D=${1:-}
-[ -x "$D/mx" ] && [ -x "$D/wxis" ] || { echo "usage: $0 <folder with the ANSI mx and wxis>   e.g. dist/linux64/isis1660-ansi"; exit 1; }
+[ -x "$D/mx" ] && [ -x "$D/wxis" ] || { echo "usage: $0 <folder with the ANSI mx and wxis>   e.g. dist/linux64/ansi/isis1660"; exit 1; }
 D=$(cd "$D" && pwd)
 HERE=$(cd "$(dirname "$0")" && pwd)
 UC="$HERE/tests/isisuctab_ansi.tab"; AC="$HERE/tests/isisactab_ansi.tab"

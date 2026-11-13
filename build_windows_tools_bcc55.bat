@@ -4,7 +4,8 @@ REM Builds the ABCD utilities with Borland C++ 5.5: crunchif crunchmf retag ifke
 REM Same platform flags as the mx.exe of build_windows_bcc55.bat; the format flags (CIWTF/INCPROCX/...)
 REM are the ones of the BIREME .mak files for these utilities.
 REM *** NOT TESTED: it needs a Windows machine with BCC 5.5. ***
-REM Usage: build_windows_tools_bcc55.bat [isis1660|ffi1660]      (default: isis1660)
+REM Usage: build_windows_tools_bcc55.bat [isis1660|ffi1660] [both|utf8|ansi]      (default: isis1660 both)
+REM    output: dist\windows32\utf8\<variant> and dist\windows32\ansi\<variant>
 REM (build_windows_all_bcc55.bat tools builds the same utilities for every variant)
 setlocal
 cd /d "%~dp0"
@@ -23,11 +24,28 @@ if /i "%VAR%"=="ffi1660" goto varok
 echo unknown variant: %VAR%   (valid: isis1660 ffi1660; use build_windows_all_bcc55.bat tools for the others)
 exit /b 1
 :varok
-set OUT=dist\windows32\%VAR%
+set CSET=%2
+if "%CSET%"=="" set CSET=both
+if /i not "%CSET%"=="both" goto csone
+REM both: run this script twice, UTF-8 then ANSI
+call "%~f0" %VAR% utf8
+set RC=%errorlevel%
+call "%~f0" %VAR% ansi
+if errorlevel 1 set RC=1
+exit /b %RC%
+:csone
+set U=1
+if /i "%CSET%"=="ansi" set U=0
+if /i "%CSET%"=="utf8" goto csok
+if /i "%CSET%"=="ansi" goto csok
+echo unknown character set: %CSET%   (valid: both utf8 ansi)
+exit /b 1
+:csok
+set OUT=dist\windows32\%CSET%\%VAR%
 if not exist dist mkdir dist
 if not exist dist\windows32 mkdir dist\windows32
 if not exist %OUT% mkdir %OUT%
-set PLAT=-DGCC=0 -DPC=1 -DDOS32BITS=1 -DMSC=0 -DUNIX=0 -DUTF8=1 -DINCLOADX=1 -DCIFFI=%FFI% -DLIND=0 -DLIND4=0 -DISISXL=1 -DISISXL512=0 -DWWWISIS=0 -D_FILE_OFFSET_BITS=0 -D_LARGEFILE64_SOURCE=0 -DPCREADLINUX=0
+set PLAT=-DGCC=0 -DPC=1 -DDOS32BITS=1 -DMSC=0 -DUNIX=0 -DUTF8=%U% -DINCLOADX=%U% -DCIFFI=%FFI% -DLIND=0 -DLIND4=0 -DISISXL=1 -DISISXL512=0 -DWWWISIS=0 -D_FILE_OFFSET_BITS=0 -D_LARGEFILE64_SOURCE=0 -DPCREADLINUX=0
 set FMT=-DCIWTF=0 -DINCPROCX=0 -DINCPRECX=0 -DEXCFMCGI=1 -DEXCFMXML=1
 set OPT=-I"%BCC%\Include" %PLAT% %FMT%
 
