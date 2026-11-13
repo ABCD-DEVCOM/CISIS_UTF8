@@ -1,6 +1,6 @@
-# XCore Engine (CISIS UTF-8)
+# XisCore Engine (CISIS UTF-8)
 
-XCore Engine is the [ABCD Community](https://abcd-community.org/)'s UTF-8-capable continuation of **CISIS 5.7e**, the C library and command-line utilities for reading, writing, indexing and searching CDS/ISIS databases. It provides `mx` (the general-purpose database utility), `wxis` (the web/CGI interface) and 37 smaller tools, and it is the engine behind ABCD, the open-source library automation system.
+XisCore Engine is the [ABCD Community](https://xiscore.org/)'s UTF-8-capable continuation of **CISIS 5.7e**, the C library and command-line utilities for reading, writing, indexing and searching CDS/ISIS databases. It provides `mx` (the general-purpose database utility), `wxis` (the web/CGI interface) and 37 smaller tools, and it is the engine behind ABCD, the open-source library automation system.
 
 CISIS was created by BIREME/PAHO. This project keeps its code, file formats and command-line behaviour, and adds:
 
@@ -9,7 +9,7 @@ CISIS was created by BIREME/PAHO. This project keeps its code, file formats and 
 - **Clean 64-bit builds on Linux.** Pointer-sized integers (`CIPTR`) in the format compiler and fixes for overlapping copies and out-of-bounds reads, so the 64-bit executables behave like the 32-bit ones.
 - **A build and test kit** for Linux (`build_linux.sh`, `smoke_test.sh`, `smoke_test_ansi.sh`) and for Windows with Borland C++ 5.5.
 
-The repository is named `CISIS_UTF8`; the program banner reads `XCore Engine v0.1.0`, with the technology lineage CISIS 5.7e.
+The repository is named `CISIS_UTF8`; the program banner reads `XisCore Engine v0.1.0`, with the technology lineage CISIS 5.7e.
 
 ## Status
 
@@ -44,20 +44,23 @@ myzcru mz retag rule serw serw2 serx sizeof sizeof2 splitem splitm wxis
 sudo apt install build-essential
 sudo apt install gcc-multilib libc6-i386
 
-# 64-bit UTF-8 build of all programs  ->  dist/linux64/isis1660/
+# 64-bit build of all programs, UTF-8 and ANSI  ->  dist/linux64/utf8/isis1660/  and  dist/linux64/ansi/isis1660/
 bash build_linux.sh -a 64 -t all
 
-# Check it
-bash smoke_test.sh dist/linux64/isis1660
+# Check them
+bash smoke_test.sh dist/linux64/utf8/isis1660
+bash smoke_test_ansi.sh dist/linux64/ansi/isis1660
 
 # Try it
-dist/linux64/isis1660/mx
+dist/linux64/ansi/isis1660/mx
 ```
+
+Every build script makes **both engines** by default and keeps them in separate trees, `utf8/` and `ansi/`. They are not interchangeable: a database written in ANSI (ISO-8859-1), like ABCD's administrative databases, must be used with the ANSI binaries, and a UTF-8 database with the UTF-8 ones.
 
 `mx` with no arguments prints the banner, which also tells you how the binary was built:
 
 ```
-XCore Engine v0.1.0/G/PC/W/M/32767/16/60/I/64bits/UTF-8: ... - Utility MX
+XisCore Engine v0.1.0/G/PC/W/M/32767/16/60/I/64bits/UTF-8: ... - Utility MX
 ```
 
 Objects and logs go to `build/`, binaries to `dist/`; neither is tracked by git.
@@ -67,7 +70,7 @@ The banner is a code for the build's limits: `M/32767/16/60` means records up to
 ### Build options
 
 ```
-bash build_linux.sh [-a 32|64] [-v VARIANT] [-t "TARGETS"] [-u 0|1] [-x 0|1] [-j N] [-s] [-c]
+bash build_linux.sh [-a 32|64] [-v VARIANT] [-t "TARGETS"] [-u both|1|0] [-x 0|1] [-j N] [-s] [-c]
 ```
 
 | Option | Meaning | Default |
@@ -75,8 +78,8 @@ bash build_linux.sh [-a 32|64] [-v VARIANT] [-t "TARGETS"] [-u 0|1] [-x 0|1] [-j
 | `-a` | Target architecture, 32 or 64 bit | `32` |
 | `-v` | Variant, 14 in all (`-v list`): `isis1660` (ABCD's administrative databases), `bigisis` (ABCD's large databases: records up to 1 MiB, files over 2 GB), `ffi1660`, `isis`, ... see [Variants](#variants) | `isis1660` |
 | `-t` | Targets, i.e. `.mak` names without the extension; `all` builds every `.mak` (in UTF-8 mode it skips `mxgw` and `mz` with a warning) | `"mx wxis"` |
-| `-u` | `1` = UTF-8 engine, `0` = ANSI engine (output goes to `dist/.../<variant>-ansi`) | `1` |
-| `-x` | `1` = honour `uctab=`/`actab=` from the `.par` file (`INCLOADX`) | same as `-u` |
+| `-u` | `both` = UTF-8 then ANSI; `1` = UTF-8 only (`dist/linux<arch>/utf8/<variant>`); `0` = ANSI only (`dist/linux<arch>/ansi/<variant>`) | `both` |
+| `-x` | `1` = honour `uctab=`/`actab=` from the `.par` file (`INCLOADX`) | on for UTF-8, off for ANSI |
 | `-j` | Parallel jobs | `nproc` |
 | `-s` | Plain `char` is signed, as in the Borland-built Windows executables | unsigned |
 | `-c` | Delete `build/` and `dist/` first | off |
@@ -93,8 +96,10 @@ CISIS has always been built in several flavours, which differ in the largest rec
 There are 12 more, for other needs (keys of 512 bytes, more than 16.7 million records, 4 MiB records...). To build **all of them in one go**:
 
 ```bash
-bash build_all.sh                  # 14 variants x 32/64 bit, UTF-8, mx + wxis  ->  dist/linux<arch>/<variant>/
-bash build_all.sh -u "1 0" -T -p 4 # also the ANSI builds, smoke-test every mx, 4 builds at a time
+bash build_all.sh                  # 14 variants x 32/64 bit x UTF-8/ANSI, mx + wxis  ->  dist/linux<arch>/{utf8,ansi}/<variant>/
+bash build_all.sh -T -p 4          # the same, smoke-testing every mx, 4 builds at a time
+bash build_all.sh -A -T            # what ABCD ships (isis1660 + bigisis, ANSI + UTF-8, every program, 64-bit),
+                                   # also laid out like ABCD's cgi-bin in dist/abcd/linux64/{ansi,ansi/bigisis,utf8,utf8/bigisis}
 ```
 
 [`_docs/LIMITS.md`](_docs/LIMITS.md) has the exact limits of each variant (record size, key length, MFN, master file size) and a measured table of which variant can read which database. Read its section 4 before pointing a binary at a database it did not create: some combinations fail with a clear error, and a few return wrong answers without any message.
@@ -112,10 +117,10 @@ build_windows_tools_bcc55.bat
 ```
 
 - `find_compilers.ps1` reports which compilers are installed (BCC55, MinGW, MSYS2, Visual Studio).
-- `build_windows_bcc55.bat [isis1660|ffi1660]` builds `mx.exe` and `wxis.exe` into `dist\windows32\<variant>\` (default `isis1660`).
-- `build_windows_tools_bcc55.bat [isis1660|ffi1660]` builds `crunchif`, `crunchmf`, `retag`, `ifkeys`, `i2id` and `id2i` into the same folder.
-- `build_windows_all_bcc55.bat abcd` builds **what ABCD ships** (`isis1660` and `bigisis`, each in ANSI and UTF-8, with `mx`, `wxis` and the utilities) in ABCD's own folder layout: `dist\abcd\windows32\ansi\`, `ansi\bigisis\`, `utf8\`, `utf8\bigisis\`. Copy their contents over ABCD's `cgi-bin`.
-- `build_windows_all_bcc55.bat [utf8|ansi|both] [tools] [variant ...]` (without `abcd`) builds any of the variants that exist on Windows (`isis`, `isis1660`, `lind`, `lind512`, `ffi`, `ffi512`, `ffi1660`, `bigisis`), one folder per variant. It is generated by `tools/gen_bcc_all.py`. The large-file ("G") variants are Linux-only because Borland C++ 5.5 has no 64-bit seek.
+- `build_windows_bcc55.bat [isis1660|ffi1660] [both|utf8|ansi]` builds `mx.exe` and `wxis.exe` into `dist\windows32\utf8\<variant>\` and `dist\windows32\ansi\<variant>\` (default `isis1660 both`).
+- `build_windows_tools_bcc55.bat [isis1660|ffi1660] [both|utf8|ansi]` builds `crunchif`, `crunchmf`, `retag`, `ifkeys`, `i2id` and `id2i` into the same folder.
+- `build_windows_all_bcc55.bat` (no arguments, or `abcd`) builds **what ABCD ships**: `isis1660` and `bigisis`, each in ANSI and UTF-8, with **every program that has a `.mak`** (38 in ANSI, 36 in UTF-8; `sizeof2` is a gcc-only diagnostic and is not built on Windows), in ABCD's own folder layout: `dist\abcd\windows32\ansi\`, `ansi\bigisis\`, `utf8\`, `utf8\bigisis\`. Copy their contents over ABCD's `cgi-bin`. A program that fails to compile does not stop the build; the summary lists it.
+- `build_windows_all_bcc55.bat [both|utf8|ansi] [tools|all] [variant ...]` (without `abcd`) builds any of the variants that exist on Windows (`isis`, `isis1660`, `lind`, `lind512`, `ffi`, `ffi512`, `ffi1660`, `bigisis`) into `dist\windows32\utf8\<variant>\` and `dist\windows32\ansi\<variant>\` (both by default). It is generated by `tools/gen_bcc_all.py`. The large-file ("G") variants are Linux-only because Borland C++ 5.5 has no 64-bit seek.
 
 ABCD does not need native 64-bit Windows binaries: 32-bit executables run on 64-bit Windows. A native 64-bit build has groundwork (`CIPTR` is `long long` under `_WIN64`) but has not been completed or run; a MinGW 32-bit build run under Wine failed at run time, and that still has to be reproduced and resolved on a real Windows machine before MinGW can be relied on.
 
@@ -149,7 +154,7 @@ build_all.sh      Linux: every variant, 32/64 bit, UTF-8/ANSI, with a summary ta
 build_windows_bcc55.bat, build_windows_tools_bcc55.bat, build_windows_all_bcc55.bat, find_compilers.ps1
 smoke_test.sh, smoke_test_ansi.sh
 tests/            character tables used by the tests
-tools/            maintenance scripts (closure.py, fix_mak_utf8.py, gen_bcc_tools.py, gen_bcc_all.py, limpar_repo.sh)
+tools/            maintenance scripts (closure.py, fix_mak_utf8.py, gen_bcc_tools.py, gen_bcc_all.py, package_release.sh, limpar_repo.sh)
 legacy/           files kept for reference only: old build scripts, makefiles for programs
                   outside the working set, and files that differ from BIREME's tree
 _docs/            COMPILING.md (engineering notes), COMPILING_pt-br.md (the Portuguese original), LIMITS.md (limits of every variant)
@@ -160,7 +165,7 @@ Files that were byte-for-byte identical to BIREME's repository were removed from
 ## Working on the code
 
 - UTF-8 behaviour lives behind `#if UTF8`. The ANSI branches are left as they were, which is why one tree can build both engines.
-- Before sending a change, build with `-a 64 -t all` and with `-a 64 -u 0 -t all`, then run both smoke tests.
+- Before sending a change, build with `-a 64 -t all` (UTF-8 and ANSI), then run both smoke tests.
 - The `.mak` files and shell scripts must keep LF line endings (`.gitattributes` enforces this for `.mak`, `.sh` and `.xsh`); CRLF breaks `make` and `sh` on Linux.
 
 ## Known issues
@@ -194,6 +199,7 @@ As of November 2026 we found no announced end date for running 32-bit programs o
 
 - [`_docs/COMPILING.md`](_docs/COMPILING.md): verification results, the defects fixed, ANSI builds, the 32-bit outlook and repository clean-up notes (Portuguese original: [`_docs/COMPILING_pt-br.md`](_docs/COMPILING_pt-br.md)).
 - [`_docs/LIMITS.md`](_docs/LIMITS.md): the exact limits of every variant and which variant can read which database.
+- [`_docs/RELEASING.md`](_docs/RELEASING.md): how a release is built, tested, packaged (`tools/package_release.sh`) and published; release texts in [`_docs/release-notes/`](_docs/release-notes/).
 - BIREME's original CISIS documentation (manuals for `mx`, the formatting language and the library): <http://wiki.bireme.org/en/index.php/CISIS>
 
 ## License
