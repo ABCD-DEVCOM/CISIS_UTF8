@@ -1,4 +1,4 @@
-# XCore Engine (CISIS) — limits and sizes of every variant
+# XisCore Engine (CISIS) — limits and sizes of every variant
 
 This document answers one question: **what are the exact limits of each binary you can build with
 `build_linux.sh` / `build_all.sh` / `build_windows_all_bcc55.bat`?**
@@ -19,21 +19,21 @@ Where a measured number differs from what the banner or the source suggests, it 
 ## 1. Reading the banner
 
 ```
-XCore Engine v0.1.0 / G / PC / 512G / W / F / L4 / M / 1048576 / 16 / 60 / I / 64bits / UTF-8
-                      │   │    │     │   │   │    │   │         │    │    │    │        └ UTF8=1 build
-                      │   │    │     │   │   │    │   │         │    │    │    └ SIXTY_FOUR: 64-bit executable
-                      │   │    │     │   │   │    │   │         │    │    └ I  = inverted-file update (IFUPDATE)
-                      │   │    │     │   │   │    │   │         │    └ LE2 = longest index key, in bytes
-                      │   │    │     │   │   │    │   │         └ LE1 = key length kept in the upper B-tree level
-                      │   │    │     │   │   │    │   └ MAXMFRL = longest record, in bytes
-                      │   │    │     │   │   │    └ M  = MULTI (multi-user / locking code)
-                      │   │    │     │   │   └ L  = LIND inverted file   (L4 = LIND4: 4-byte MFN in postings)
-                      │   │    │     │   └ F  = CIFFI: long records (24-byte leader, 12-byte directory entry)
-                      │   │    │     └ W  = CIWTF (word-type functions compiled in)
-                      │   │    └ "512G" is printed whenever _LARGEFILE64_SOURCE is on. It is a hard-coded
-                      │   │      string: it does NOT report the real .mst capacity (see section 3.5)
-                      │   └ PC = packed, little-endian file layout (the BIREME "PC" format; also used on Linux)
-                      └ G  = compiled with gcc
+XisCore Engine v0.1.0 / G / PC / 512G / W / F / L4 / M / 1048576 / 16 / 60 / I / 64bits / UTF-8
+                        │   │    │     │   │   │    │   │         │    │    │    │        └ UTF8=1 build
+                        │   │    │     │   │   │    │   │         │    │    │    └ SIXTY_FOUR: 64-bit executable
+                        │   │    │     │   │   │    │   │         │    │    └ I  = inverted-file update (IFUPDATE)
+                        │   │    │     │   │   │    │   │         │    └ LE2 = longest index key, in bytes
+                        │   │    │     │   │   │    │   │         └ LE1 = key length kept in the upper B-tree level
+                        │   │    │     │   │   │    │   └ MAXMFRL = longest record, in bytes
+                        │   │    │     │   │   │    └ M  = MULTI (multi-user / locking code)
+                        │   │    │     │   │   └ L  = LIND inverted file   (L4 = LIND4: 4-byte MFN in postings)
+                        │   │    │     │   └ F  = CIFFI: long records (24-byte leader, 12-byte directory entry)
+                        │   │    │     └ W  = CIWTF (word-type functions compiled in)
+                        │   │    └ "512G" is printed whenever _LARGEFILE64_SOURCE is on. It is a hard-coded
+                        │   │      string: it does NOT report the real .mst capacity (see section 3.5)
+                        │   └ PC = packed, little-endian file layout (the BIREME "PC" format; also used on Linux)
+                        └ G  = compiled with gcc
 ```
 
 `1660` in a variant name means LE1/LE2 = 16/60 (instead of the original 10/30).
