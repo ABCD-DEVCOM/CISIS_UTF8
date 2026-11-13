@@ -4,3 +4,4 @@ dist/
 *.obj
 *.tds
 /.vscode
+release/
