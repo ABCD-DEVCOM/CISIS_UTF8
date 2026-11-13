@@ -1195,13 +1195,13 @@ char *namep;
 #endif
     }
 #if UTF8
-    p = "XCore Engine v0.1.0";
+    p = "XisCore Engine v0.1.0";
     q = "Technology lineage: CISIS 5.7e";
-    q3 = "2026 - ABCD Community. [https://abcd-community.org/]";
+    q3 = "2026 - ABCD Community. [https://xiscore.org/]";
 #else
-    p = "XCore Engine v0.1.0";
+    p = "XisCore Engine v0.1.0";
     q = "Technology lineage: CISIS 5.7e";
-    q3 = "2026 - ABCD Community. [https://abcd-community.org/]";
+    q3 = "2026 - ABCD Community. [https://xiscore.org/]";
 #endif
 
     if (namep[0] == '?')
